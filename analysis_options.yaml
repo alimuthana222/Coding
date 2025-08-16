@@ -1,0 +1,42 @@
+include: package:flutter_lints/flutter.yaml
+
+# Additional lint rules for better code quality
+linter:
+  rules:
+    # Style
+    - camel_case_types
+    - camel_case_extensions
+    - file_names
+    - non_constant_identifier_names
+    - constant_identifier_names
+    
+    # Design
+    - use_key_in_widget_constructors
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_literals_to_create_immutables
+    - prefer_const_declarations
+    - unnecessary_const
+    - unnecessary_new
+    
+    # Error prevention
+    - avoid_print
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    - unnecessary_null_checks
+    - unnecessary_null_in_if_null_operators
+    
+    # Performance
+    - prefer_collection_literals
+    - prefer_spread_collections
+    - use_function_type_syntax_for_parameters
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated/**"
+  
+  errors:
+    invalid_annotation_target: ignore
+    todo: ignore  # Allow TODO comments during development
