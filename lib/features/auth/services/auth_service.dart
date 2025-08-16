@@ -69,6 +69,24 @@ class AuthService {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    try {
+      await _supabase.auth.resetPasswordForEmail(email);
+    } catch (e) {
+      if (e is AuthException) {
+        switch (e.message) {
+          case 'Unable to validate email address: invalid format':
+            throw Exception('صيغة البريد الإلكتروني غير صحيحة');
+          case 'Email not found':
+            throw Exception('البريد الإلكتروني غير مسجل');
+          default:
+            throw Exception('خطأ في إرسال رابط استعادة كلمة المرور: ${e.message}');
+        }
+      }
+      throw Exception('خطأ في الاتصال بالخادم');
+    }
+  }
+
   Future<UserModel?> getCurrentUser() async {
     try {
       final currentUser = _supabase.auth.currentUser;

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../../../shared/widgets/loading_button.dart';
+import '../../../shared/widgets/forgot_password_dialog.dart';
 import '../providers/auth_provider.dart';
 import '../models/auth_state.dart';
 import '../../../generated/l10n.dart';
@@ -214,7 +215,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Implement forgot password
+                        showDialog(
+                          context: context,
+                          builder: (context) => const ForgotPasswordDialog(),
+                        );
                       },
                       child: Text(l10n.forgotPassword),
                     ),

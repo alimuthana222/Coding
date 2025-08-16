@@ -64,15 +64,22 @@ class HomeView extends ConsumerWidget {
       width: double.infinity,
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
-            Color(0xFFE3F2FD),
-            Color(0xFFBBDEFB),
+            AppTheme.getCardGradientStart(context, 'wallet'),
+            AppTheme.getCardGradientEnd(context, 'wallet'),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,14 +88,14 @@ class HomeView extends ConsumerWidget {
             'مرحباً، $userName',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1565C0),
+              color: AppTheme.primaryColor,
             ),
           ),
           SizedBox(height: 8.h),
           Text(
             'أهلاً بك مرة أخرى',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: const Color(0xFF1976D2),
+              color: AppTheme.textSecondaryColor,
               fontSize: 16.sp,
             ),
           ),
@@ -108,10 +115,10 @@ class HomeView extends ConsumerWidget {
                   context,
                   icon: Icons.access_time,
                   iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF4CAF50),
+                  iconBgColor: AppTheme.getIconColor('timebank'),
                   title: 'بنك الوقت',
                   value: '${user?.timeBalance ?? 0} س',
-                  bgColor: const Color(0xFFE8F5E8),
+                  bgColor: AppTheme.getCardGradientStart(context, 'timebank'),
                 ),
               ),
               SizedBox(width: 12.w),
@@ -120,10 +127,10 @@ class HomeView extends ConsumerWidget {
                   context,
                   icon: Icons.account_balance_wallet,
                   iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF2196F3),
+                  iconBgColor: AppTheme.getIconColor('wallet'),
                   title: 'المحفظة',
                   value: '${user?.walletBalance.toStringAsFixed(0) ?? '0'} د.ع',
-                  bgColor: const Color(0xFFE3F2FD),
+                  bgColor: AppTheme.getCardGradientStart(context, 'wallet'),
                 ),
               ),
             ],
@@ -136,10 +143,10 @@ class HomeView extends ConsumerWidget {
                   context,
                   icon: Icons.star,
                   iconColor: Colors.white,
-                  iconBgColor: const Color(0xFFFF9800),
+                  iconBgColor: AppTheme.getIconColor('reviews'),
                   title: 'التقييمات',
                   value: '${user?.reviewCount ?? 0}',
-                  bgColor: const Color(0xFFFFF3E0),
+                  bgColor: AppTheme.getCardGradientStart(context, 'reviews'),
                 ),
               ),
               SizedBox(width: 12.w),
@@ -148,10 +155,10 @@ class HomeView extends ConsumerWidget {
                   context,
                   icon: Icons.star_rate,
                   iconColor: Colors.white,
-                  iconBgColor: const Color(0xFF9C27B0),
+                  iconBgColor: AppTheme.getIconColor('rating'),
                   title: 'التقييم',
                   value: '${user?.rating.toStringAsFixed(1) ?? '0.0'}',
-                  bgColor: const Color(0xFFF3E5F5),
+                  bgColor: AppTheme.getCardGradientStart(context, 'rating'),
                 ),
               ),
             ],
@@ -246,8 +253,22 @@ class HomeView extends ConsumerWidget {
     return Container(
       height: 72.h,
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: AppTheme.borderColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: SizedBox(
+          width: 20.w,
+          height: 20.h,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          ),
+        ),
       ),
     );
   }
@@ -262,10 +283,10 @@ class HomeView extends ConsumerWidget {
                 context,
                 icon: Icons.access_time,
                 iconColor: Colors.white,
-                iconBgColor: const Color(0xFF4CAF50),
+                iconBgColor: AppTheme.getIconColor('timebank'),
                 title: 'بنك الوقت',
                 value: '0 س',
-                bgColor: const Color(0xFFE8F5E8),
+                bgColor: AppTheme.getCardGradientStart(context, 'timebank'),
               ),
             ),
             SizedBox(width: 12.w),
@@ -274,10 +295,10 @@ class HomeView extends ConsumerWidget {
                 context,
                 icon: Icons.account_balance_wallet,
                 iconColor: Colors.white,
-                iconBgColor: const Color(0xFF2196F3),
+                iconBgColor: AppTheme.getIconColor('wallet'),
                 title: 'المحفظة',
                 value: '0 د.ع',
-                bgColor: const Color(0xFFE3F2FD),
+                bgColor: AppTheme.getCardGradientStart(context, 'wallet'),
               ),
             ),
           ],
@@ -290,10 +311,10 @@ class HomeView extends ConsumerWidget {
                 context,
                 icon: Icons.star,
                 iconColor: Colors.white,
-                iconBgColor: const Color(0xFFFF9800),
+                iconBgColor: AppTheme.getIconColor('reviews'),
                 title: 'التقييمات',
                 value: '0',
-                bgColor: const Color(0xFFFFF3E0),
+                bgColor: AppTheme.getCardGradientStart(context, 'reviews'),
               ),
             ),
             SizedBox(width: 12.w),
@@ -302,10 +323,10 @@ class HomeView extends ConsumerWidget {
                 context,
                 icon: Icons.star_rate,
                 iconColor: Colors.white,
-                iconBgColor: const Color(0xFF9C27B0),
+                iconBgColor: AppTheme.getIconColor('rating'),
                 title: 'التقييم',
                 value: '0.0',
-                bgColor: const Color(0xFFF3E5F5),
+                bgColor: AppTheme.getCardGradientStart(context, 'rating'),
               ),
             ),
           ],
@@ -320,22 +341,19 @@ class HomeView extends ConsumerWidget {
         'title': 'تطوير المواقع',
         'subtitle': 'تطوير',
         'icon': Icons.web,
-        'color': const Color(0xFF2196F3),
-        'bgColor': const Color(0xFFE3F2FD),
+        'colorType': 'webdev',
       },
       {
         'title': 'التصميم الجرافيكي',
         'subtitle': 'تصميم',
         'icon': Icons.design_services,
-        'color': const Color(0xFF9C27B0),
-        'bgColor': const Color(0xFFF3E5F5),
+        'colorType': 'design',
       },
       {
         'title': 'تحرير الصوت',
         'subtitle': 'صوتيات',
         'icon': Icons.audiotrack,
-        'color': const Color(0xFF2196F3),
-        'bgColor': const Color(0xFFE3F2FD),
+        'colorType': 'audio',
       },
     ];
 
@@ -348,8 +366,7 @@ class HomeView extends ConsumerWidget {
             title: service['title'] as String,
             subtitle: service['subtitle'] as String,
             icon: service['icon'] as IconData,
-            iconColor: service['color'] as Color,
-            bgColor: service['bgColor'] as Color,
+            colorType: service['colorType'] as String,
           ),
         );
       }).toList(),
@@ -361,9 +378,11 @@ class HomeView extends ConsumerWidget {
         required String title,
         required String subtitle,
         required IconData icon,
-        required Color iconColor,
-        required Color bgColor,
+        required String colorType,
       }) {
+    final iconColor = AppTheme.getIconColor(colorType);
+    final bgColor = Theme.of(context).cardColor;
+    
     return GestureDetector(
       onTap: () {
         context.push('/services');
@@ -374,6 +393,17 @@ class HomeView extends ConsumerWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppTheme.borderColor.withOpacity(0.2),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.shadowColor,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -381,7 +411,7 @@ class HomeView extends ConsumerWidget {
               width: 56.w,
               height: 56.h,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2),
+                color: iconColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Icon(

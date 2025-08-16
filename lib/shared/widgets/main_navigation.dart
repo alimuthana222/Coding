@@ -26,28 +26,28 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
       selectedIcon: Icons.home,
       labelKey: 'home',
       route: '/',
-      color: const Color(0xFF00BCD4), // Cyan color like in the image
+      color: AppTheme.accentColor, // Use theme accent color
     ),
     NavItem(
       icon: Icons.search_outlined,
       selectedIcon: Icons.search,
       labelKey: 'search',
       route: '/services',
-      color: Colors.grey.shade600,
+      color: AppTheme.textSecondaryColor,
     ),
     NavItem(
       icon: Icons.account_balance_wallet_outlined,
       selectedIcon: Icons.account_balance_wallet,
       labelKey: 'wallet',
       route: '/wallet',
-      color: Colors.grey.shade600,
+      color: AppTheme.textSecondaryColor,
     ),
     NavItem(
       icon: Icons.person_outline,
       selectedIcon: Icons.person,
       labelKey: 'profile',
       route: '/profile',
-      color: Colors.grey.shade600,
+      color: AppTheme.textSecondaryColor,
     ),
   ];
 
@@ -81,10 +81,10 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
       body: widget.child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.surfaceColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: AppTheme.shadowColor,
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -114,7 +114,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                             isSelected ? item.selectedIcon : item.icon,
                             color: isSelected
                                 ? item.color
-                                : Colors.grey.shade400,
+                                : AppTheme.textSecondaryColor.withOpacity(0.6),
                             size: 26.w,
                           ),
                           SizedBox(height: 4.h),
@@ -123,7 +123,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                             style: TextStyle(
                               color: isSelected
                                   ? item.color
-                                  : Colors.grey.shade400,
+                                  : AppTheme.textSecondaryColor.withOpacity(0.6),
                               fontSize: 12.sp,
                               fontWeight: isSelected
                                   ? FontWeight.w600

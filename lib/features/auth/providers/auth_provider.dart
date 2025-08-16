@@ -74,6 +74,16 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    state = const AuthLoading();
+    try {
+      await _authService.resetPassword(email);
+      state = const AuthSuccess('تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني');
+    } catch (e) {
+      state = AuthError(e.toString());
+    }
+  }
+
   void clearState() {
     state = const AuthInitial();
   }
