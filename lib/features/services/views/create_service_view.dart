@@ -7,6 +7,8 @@ import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../../../shared/widgets/loading_button.dart';
 import '../../../generated/l10n.dart';
+import '../models/service_model.dart';
+import '../providers/services_provider.dart';
 
 class CreateServiceView extends ConsumerStatefulWidget {
   final String type; // إضافة المعامل المطلوب
@@ -48,7 +50,27 @@ class _CreateServiceViewState extends ConsumerState<CreateServiceView> {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    final servicesState = ref.watch(servicesNotifierProvider);
     final isOffer = widget.type == 'offer';
+
+    ref.listen(servicesNotifierProvider, (previous, next) {
+      if (next is ServicesSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+        context.pop();
+      } else if (next is ServicesError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -198,7 +220,7 @@ class _CreateServiceViewState extends ConsumerState<CreateServiceView> {
               // Submit Button
               LoadingButton(
                 onPressed: _handleSubmit,
-                isLoading: false, // TODO: ربط بـ provider
+                isLoading: servicesState is ServicesLoading,
                 text: isOffer ? 'نشر الخدمة' : 'نشر الطلب',
                 backgroundColor: isOffer ? AppTheme.successColor : AppTheme.infoColor,
               ),
@@ -211,19 +233,15 @@ class _CreateServiceViewState extends ConsumerState<CreateServiceView> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
-      // TODO: إرسال البيانات للخادم
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              widget.type == 'offer'
-                  ? 'تم نشر الخدمة بنجاح!'
-                  : 'تم نشر الطلب بنجاح!'
-          ),
-          backgroundColor: AppTheme.successColor,
-        ),
+      final price = double.tryParse(_priceController.text) ?? 0.0;
+      
+      ref.read(servicesNotifierProvider.notifier).createService(
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        category: _selectedCategory,
+        hourlyRate: price,
+        tags: [], // Can be extended to include tags
       );
-
-      context.pop();
     }
   }
 }

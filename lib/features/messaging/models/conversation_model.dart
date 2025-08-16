@@ -60,4 +60,36 @@ class ConversationModel {
       'participant2_avatar': participant2Avatar,
     };
   }
+
+  // Helper methods
+  String get participantName {
+    // This should be determined based on current user
+    // For now, return the first available name
+    return participant1Name ?? participant2Name ?? 'مستخدم';
+  }
+
+  String? get participantAvatar {
+    // This should be determined based on current user
+    // For now, return the first available avatar
+    return participant1Avatar ?? participant2Avatar;
+  }
+
+  String get timeAgo {
+    if (lastMessageAt == null) return '';
+    
+    final now = DateTime.now();
+    final difference = now.difference(lastMessageAt!);
+    
+    if (difference.inMinutes < 1) {
+      return 'الآن';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes} د';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours} س';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} يوم';
+    } else {
+      return '${(difference.inDays / 7).floor()} أسبوع';
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../generated/l10n.dart';
+import '../providers/messaging_provider.dart';
 
 class ConversationsView extends ConsumerStatefulWidget {
   const ConversationsView({super.key});
@@ -68,7 +69,14 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
                   fillColor: AppTheme.backgroundColor,
                 ),
                 onChanged: (value) {
-                  // TODO: تنفيذ البحث
+                  setState(() {
+                    _isSearching = value.isNotEmpty;
+                  });
+                  // Implement search functionality when the user types
+                  if (value.isNotEmpty) {
+                    // TODO: Filter conversations based on search term
+                    // This could trigger a provider method to filter conversations
+                  }
                 },
               ),
             ),
@@ -77,7 +85,8 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                // TODO: تحديث المحادثات
+                // Refresh conversations by invalidating the provider
+                ref.invalidate(conversationsProvider);
               },
               child: _buildConversationsList(),
             ),
@@ -88,36 +97,135 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
   }
 
   Widget _buildConversationsList() {
-    // بيانات وهمية للمحادثات
-    final conversations = [
-      {
-        'id': '1',
-        'name': 'أحمد محمد',
-        'lastMessage': 'شكراً لك على الخدمة الرائعة',
-        'time': '10:30 ص',
-        'unreadCount': 2,
-        'isOnline': true,
-        'avatar': null,
+    final conversationsAsync = ref.watch(conversationsProvider);
+    
+    return conversationsAsync.when(
+      data: (conversations) {
+        if (conversations.isEmpty) {
+          return _buildEmptyState();
+        }
+        
+        // Filter conversations based on search
+        final filteredConversations = _isSearching
+            ? conversations.where((conversation) {
+                final searchTerm = _searchController.text.toLowerCase();
+                return conversation.participantName.toLowerCase().contains(searchTerm) ||
+                       (conversation.lastMessage?.toLowerCase().contains(searchTerm) ?? false);
+              }).toList()
+            : conversations;
+        
+        if (filteredConversations.isEmpty && _isSearching) {
+          return _buildNoSearchResults();
+        }
+        
+        return ListView.builder(
+          itemCount: filteredConversations.length,
+          itemBuilder: (context, index) {
+            final conversation = filteredConversations[index];
+            return _buildConversationItem(conversation);
+          },
+        );
       },
-      {
-        'id': '2',
-        'name': 'سارة أحمد',
-        'lastMessage': 'متى يمكنك البدء بالمشروع؟',
-        'time': 'أمس',
-        'unreadCount': 0,
-        'isOnline': false,
-        'avatar': null,
-      },
-      {
-        'id': '3',
-        'name': 'محمد علي',
-        'lastMessage': 'هل يمكنك إرسال العينات؟',
-        'time': 'الأحد',
-        'unreadCount': 1,
-        'isOnline': true,
-        'avatar': null,
-      },
-    ];
+      loading: () => _buildLoadingState(),
+      error: (error, stack) => _buildErrorState(error.toString()),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 64.w,
+            color: AppTheme.textSecondaryColor,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'لا توجد محادثات بعد',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'ابدأ محادثة جديدة مع أحد المستخدمين',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppTheme.textSecondaryColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoSearchResults() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64.w,
+            color: AppTheme.textSecondaryColor,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'لا توجد نتائج',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'جرب كلمات بحث أخرى',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64.w,
+            color: AppTheme.errorColor,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'خطأ في تحميل المحادثات',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppTheme.errorColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          ElevatedButton(
+            onPressed: () {
+              ref.invalidate(conversationsProvider);
+            },
+            child: Text('إعادة المحاولة'),
+          ),
+        ],
+      ),
+    );
+  }
 
     if (conversations.isEmpty) {
       return _buildEmptyState();
@@ -133,8 +241,17 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
     );
   }
 
-  Widget _buildConversationItem(Map<String, dynamic> conversation) {
-    final hasUnread = conversation['unreadCount'] > 0;
+  Widget _buildConversationItem(dynamic conversation) {
+    // Support both model objects and mock data
+    final id = conversation is Map ? conversation['id'] : conversation.id;
+    final name = conversation is Map ? conversation['name'] : conversation.participantName;
+    final lastMessage = conversation is Map ? conversation['lastMessage'] : conversation.lastMessage;
+    final time = conversation is Map ? conversation['time'] : conversation.timeAgo;
+    final unreadCount = conversation is Map ? conversation['unreadCount'] ?? 0 : 0; // TODO: Add to model
+    final isOnline = conversation is Map ? conversation['isOnline'] ?? false : false; // TODO: Add to model
+    final avatar = conversation is Map ? conversation['avatar'] : conversation.participantAvatar;
+    
+    final hasUnread = unreadCount > 0;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -150,12 +267,12 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
             CircleAvatar(
               radius: 28.r,
               backgroundColor: AppTheme.primaryColor,
-              backgroundImage: conversation['avatar'] != null
-                  ? NetworkImage(conversation['avatar'])
+              backgroundImage: avatar != null
+                  ? NetworkImage(avatar)
                   : null,
-              child: conversation['avatar'] == null
+              child: avatar == null
                   ? Text(
-                conversation['name'][0].toUpperCase(),
+                name.isNotEmpty ? name[0].toUpperCase() : '؟',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.sp,
@@ -164,7 +281,7 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
               )
                   : null,
             ),
-            if (conversation['isOnline'])
+            if (isOnline)
               Positioned(
                 bottom: 0,
                 right: 0,
@@ -184,14 +301,14 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
           children: [
             Expanded(
               child: Text(
-                conversation['name'],
+                name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: hasUnread ? FontWeight.bold : FontWeight.w600,
                 ),
               ),
             ),
             Text(
-              conversation['time'],
+              time,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: hasUnread ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
                 fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
@@ -203,7 +320,7 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
           children: [
             Expanded(
               child: Text(
-                conversation['lastMessage'],
+                lastMessage ?? 'لا توجد رسائل',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondaryColor,
                   fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
@@ -221,7 +338,7 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Text(
-                  '${conversation['unreadCount']}',
+                  unreadCount.toString(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12.sp,
@@ -232,7 +349,7 @@ class _ConversationsViewState extends ConsumerState<ConversationsView> {
           ],
         ),
         onTap: () {
-          context.push('/messages/chat/${conversation['id']}');
+          context.push('/messages/chat/$id');
         },
       ),
     );
