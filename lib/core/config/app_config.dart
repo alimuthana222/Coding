@@ -1,10 +1,11 @@
 class AppConfig {
-  // Supabase Configuration - Replace these with your actual Supabase credentials
+  // Supabase Configuration
+  // TODO: Move these to environment variables for production
   static const String supabaseUrl = 'https://cnbygtdeswbsdqwtdtee.supabase.co';
   static const String supabaseAnonKey = 'sb_publishable_C_FMKTgkJkv6yNMDxkTcGQ_XjLltjeO';
 
   // App Configuration
-  static const String appName = 'Skill Marketplace';
+  static const String appName = 'سوق المهارات';
   static const String appVersion = '1.0.0';
 
   // API Endpoints
@@ -27,4 +28,8 @@ class AppConfig {
 
   // Time Bank
   static const String timeUnit = 'Hours';
+  
+  // Development flags
+  static const bool isDevelopment = true;
+  static const bool enableLogging = true;
 }

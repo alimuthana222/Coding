@@ -178,7 +178,21 @@ class WalletView extends ConsumerWidget {
                   const Spacer(),
                   TextButton.icon(
                     onPressed: () {
-                      // TODO: Navigate to all transactions
+                      // Navigate to full transaction history
+                      // For now, show a dialog with message about full implementation
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('عرض جميع المعاملات'),
+                          content: Text('سيتم تنفيذ صفحة عرض جميع المعاملات قريباً'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('حسناً'),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.arrow_forward, size: 16),
                     label: const Text('عرض الكل'),

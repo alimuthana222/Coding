@@ -28,9 +28,6 @@ class AppTheme {
   static const Color darkBorder = Color(0xFF475569);
   static const Color darkDivider = Color(0xFF475569);
 
-  static Brightness _brightness = Brightness.light;
-
-
   // Gradient Colors for Cards
   static const List<Color> timeBankGradient = [
     Color(0xFFE8F5E8),
@@ -90,28 +87,40 @@ class AppTheme {
 
   static const Color lightBorderColor = Color(0xFFE5E7EB);
 
-  static Color get textSecondaryColor => _brightness == Brightness.dark
-      ? darkTextSecondary
-      : lightTextSecondary;
+  // Context-aware color getters for better theme support
+  static Color textSecondaryColor(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark
+          ? darkTextSecondary
+          : lightTextSecondary;
 
-  static Color get surfaceColor => _brightness == Brightness.dark
-      ? darkSurface
-      : lightSurface;
+  static Color surfaceColor(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark
+          ? darkSurface
+          : lightSurface;
+
+  static Color borderColor(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark
+          ? darkBorder
+          : lightBorderColor;
+
+  static Color textPrimaryColor(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark
+          ? darkTextPrimary
+          : lightTextPrimary;
+
+  static Color backgroundColor(BuildContext context) => 
+      Theme.of(context).brightness == Brightness.dark
+          ? darkBackground
+          : lightBackground;
+
+  // Legacy getters for backwards compatibility
+  static Color get textSecondaryColor => lightTextSecondary;
+  static Color get surfaceColor => lightSurface;
+  static Color get borderColor => lightBorderColor;
+  static Color get textPrimaryColor => lightTextPrimary;
+  static Color get backgroundColor => lightBackground;
 
   static const Color infoColor = Color(0xFF3B82F6);
-
-  static Color get borderColor => _brightness == Brightness.dark
-      ? darkBorder
-      : lightBorderColor;
-
-  static Color get textPrimaryColor => _brightness == Brightness.dark
-      ? darkTextPrimary
-      : lightTextPrimary;
-
-
-  static Color get backgroundColor => _brightness == Brightness.dark
-      ? darkBackground
-      : lightBackground;
 
 
   static const Color shadowColor = Color(0x1A000000);
