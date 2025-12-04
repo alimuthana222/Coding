@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Reconstruction from Monocular/Multi-View Images Using Deep Learning</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+        @page {
+            size: A4;
+            margin: 0;
+        }
         
         * {
             margin: 0;
@@ -14,1160 +17,393 @@
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Georgia', serif;
+            background: white;
+            color: #1a1a1a;
             line-height: 1.6;
-            color: #2c3e50;
-            background: #f8f9fa;
         }
         
-        /* A4 Page Settings - Perfect for PDF */
         .page {
             width: 210mm;
             height: 297mm;
-            padding: 20mm 20mm 20mm 20mm;
-            margin: 10px auto;
+            padding: 25mm;
+            margin: 0 auto;
             background: white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             page-break-after: always;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Print Settings for PDF */
-        @media print {
-            body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-            . page {
-                margin: 0;
-                box-shadow: none;
-                page-break-after: always;
-            }
-            .page-number {
-                background: none;
-            }
-        }
-        
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        
-        . cover-page {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+        
+        .cover-page {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            color: white;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 30mm 25mm;
+            padding: 40mm 25mm;
         }
         
         .cover-page h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 42px;
-            font-weight: 900;
-            margin-bottom: 30px;
-            line-height: 1.2;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-            color: white;
-            letter-spacing: -1px;
+            font-size: 36pt;
+            margin-bottom: 30mm;
+            font-weight: bold;
+            line-height: 1.3;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .cover-page . author-info {
-            margin-top: 50px;
-            font-size: 16px;
-        }
-        
-        .cover-page .author-names {
-            margin-top: 20px;
-            font-size: 20px;
-            line-height: 2;
-            font-weight: 500;
-            color: white;
-        }
-        
-        .cover-page .date {
-            margin-top: 30px;
-            font-size: 15px;
-            opacity: 0.95;
+        .cover-page .subtitle {
+            font-size: 18pt;
+            margin-bottom: 40mm;
             font-weight: 300;
+            opacity: 0.95;
         }
         
-        .decorative-line {
-            width: 100px;
-            height: 4px;
-            background: white;
-            margin: 20px auto;
-            border-radius: 3px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        .students-box {
+            background: rgba(255,255,255,0.15);
+            padding: 20px 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 30mm;
         }
         
-        h1 {
-            font-family: 'Playfair Display', serif;
-            color: #667eea;
-            font-size: 26px;
-            margin-bottom: 18px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .students-box h3 {
+            font-size: 16pt;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .student-name {
+            font-size: 14pt;
+            margin: 10px 0;
+            font-weight: 400;
+        }
+        
+        .date {
+            font-size: 14pt;
+            margin-top: 20mm;
+            opacity: 0.9;
+        }
+        
+        .content-page {
+            justify-content: flex-start;
+        }
+        
+        .page-number {
+            position: absolute;
+            bottom: 15mm;
+            right: 25mm;
+            font-size: 10pt;
+            color: #666;
         }
         
         h2 {
-            font-family: 'Poppins', sans-serif;
-            color: #764ba2;
-            font-size: 18px;
-            margin-top: 20px;
-            margin-bottom: 12px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
+            font-size: 20pt;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #2a5298;
+            font-weight: bold;
         }
         
         h3 {
-            color: #667eea;
-            font-size: 14px;
-            margin-top: 15px;
-            margin-bottom: 10px;
+            font-size: 16pt;
+            color: #2a5298;
+            margin-top: 20px;
+            margin-bottom: 12px;
             font-weight: 600;
         }
         
         p {
-            margin-bottom: 12px;
             text-align: justify;
-            font-size: 11px;
-            line-height: 1.6;
-            color: #34495e;
-            font-weight: 400;
+            margin-bottom: 12px;
+            font-size: 11pt;
+            color: #2c2c2c;
         }
         
-        .abstract-box {
-            background: linear-gradient(135deg, #e8eeff 0%, #f5f0ff 100%);
-            padding: 18px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 5px solid #667eea;
-            box-shadow: 0 3px 15px rgba(102, 126, 234, 0.1);
-        }
-        
-        .abstract-box h2 {
-            margin-top: 0;
-            color: #667eea;
-        }
-        
-        .abstract-box p {
-            font-size: 10. 5px;
-            line-height: 1.6;
-        }
-        
-        .image-container {
-            margin: 18px 0;
-            text-align: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .image-container img {
-            max-width: 100%;
-            max-height: 150px;
-            height: auto;
-            border-radius: 6px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
-        }
-        
-        .image-caption {
-            margin-top: 10px;
-            font-size: 10px;
-            color: #7f8c8d;
-            font-style: italic;
-            font-weight: 500;
-        }
-        
-        .info-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 15px 18px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #764ba2;
-            box-shadow: 0 2px 10px rgba(118, 75, 162, 0.08);
-        }
-        
-        .info-box h3 {
-            margin-top: 0;
-            color: #764ba2;
-        }
-        
-        .info-box p {
-            margin-bottom: 10px;
-        }
-        
-        ul, ol {
+        ul {
             margin-left: 25px;
             margin-bottom: 12px;
         }
         
         li {
-            margin-bottom: 6px;
-            font-size: 11px;
-            line-height: 1. 6;
-            color: #34495e;
+            margin-bottom: 8px;
+            font-size: 11pt;
+            color: #2c2c2c;
         }
         
-        ol {
-            counter-reset: item;
-        }
-        
-        ol > li {
-            counter-increment: item;
-        }
-        
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
-        . two-column > div {
-            background: #f8f9fa;
+        .highlight-box {
+            background: #f0f4f8;
             padding: 15px;
-            border-radius: 8px;
-            border-top: 3px solid #667eea;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
+            border-left: 4px solid #2a5298;
             margin: 15px 0;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            border-radius: 8px;
-            overflow: hidden;
-            font-size: 10px;
-        }
-        
-        th, td {
-            padding: 10px 12px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 10px;
-        }
-        
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 9px;
-            letter-spacing: 0.5px;
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        tr:hover {
-            background: #e8eeff;
-            transition: background 0.3s ease;
-        }
-        
-        .footer {
-            position: absolute;
-            bottom: 12mm;
-            left: 20mm;
-            right: 20mm;
-            text-align: center;
-            font-size: 9px;
-            color: #95a5a6;
-            padding-top: 8px;
-            border-top: 1px solid #e9ecef;
-            font-weight: 500;
-        }
-        
-        .page-number {
-            position: absolute;
-            bottom: 12mm;
-            right: 20mm;
-            font-size: 11px;
-            color: #667eea;
-            font-weight: 700;
-            background: #e8eeff;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        
-        .highlight {
-            background: linear-gradient(120deg, #fef08a 0%, #fef08a 100%);
-            background-repeat: no-repeat;
-            background-size: 100% 40%;
-            background-position: 0 80%;
-            padding: 2px 0;
-            font-weight: 500;
-        }
-        
-        blockquote {
-            border-left: 4px solid #667eea;
-            padding-left: 15px;
-            margin: 15px 0;
-            font-style: italic;
-            color: #555;
-            background: #f8f9fa;
-            padding: 12px 15px;
-            border-radius: 0 6px 6px 0;
-        }
-        
-        .reference-item {
-            margin-bottom: 10px;
-            padding-left: 20px;
-            text-indent: -20px;
-            font-size: 9. 5px;
-            line-height: 1.5;
-            color: #34495e;
+            border-radius: 4px;
         }
         
         strong {
-            color: #2c3e50;
+            color: #1e3c72;
             font-weight: 600;
         }
         
-        em {
-            color: #7f8c8d;
+        .section-content {
+            flex-grow: 1;
+        }
+        
+        @media print {
+            body {
+                background: white;
+
+}
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+            }
         }
     </style>
 </head>
 <body>
-
-<!-- Page 1: Cover Page -->
-<div class="page cover-page">
-    <h1>3D Reconstruction from Monocular/Multi-View Images Using Deep Learning</h1>
-    <div class="decorative-line"></div>
-    <div class="author-info">
-        <p><strong>Prepared by:</strong></p>
-        <div class="author-names">
-            <p>علي مثنى مال الله</p>
-            <p>احمد عبدالسلام احمد</p>
-            <p>احمد خالد عصمت</p>
+    <!-- Cover Page -->
+    <div class="page cover-page">
+        <h1>3D Reconstruction from Monocular/Multi-View Images Using Deep Learning</h1>
+        <div class="subtitle">Academic Report on Advanced Computer Vision Techniques</div>
+        
+        <div class="students-box">
+            <h3>إعداد الطلاب:</h3>
+            <div class="student-name">علي مثنى مال الله</div>
+            <div class="student-name">احمد عبدالسلام احمد</div>
+            <div class="student-name">احمد خالد عصمت</div>
         </div>
+        
+        <div class="date">December 2025</div>
     </div>
-    <div class="date">
-        <p>December 2025</p>
-    </div>
-</div>
 
-<!-- Page 2: Abstract and Table of Contents -->
-<div class="page">
-    <div class="abstract-box">
-        <h2>Abstract</h2>
-        <p>Three-dimensional (3D) reconstruction from images represents a fundamental challenge in computer vision, with applications spanning robotics, augmented reality, autonomous vehicles, and cultural heritage preservation. This report provides a comprehensive examination of modern approaches to 3D reconstruction from monocular and multi-view images using deep learning techniques. </p>
-        <p>Traditional methods relying on geometric principles have been revolutionized by deep learning architectures that can learn complex mappings from 2D images to 3D representations.  We explore the evolution from classical Structure from Motion (SfM) and Multi-View Stereo (MVS) techniques to contemporary neural network-based approaches including convolutional neural networks (CNNs), generative adversarial networks (GANs), and transformer architectures. </p>
-        <p>This report examines key methodologies, architectural innovations, datasets, evaluation metrics, and real-world applications, providing insights into current challenges and future research directions in this rapidly evolving field.</p>
-    </div>
-    
-    <h2>Table of Contents</h2>
-    <ol style="line-height: 2; font-size: 12px; font-weight: 500;">
-        <li>Introduction</li>
-        <li>Background and Fundamentals</li>
-        <li>Traditional 3D Reconstruction Methods</li>
-        <li>Deep Learning Foundations for 3D Reconstruction</li>
-        <li>Monocular 3D Reconstruction</li>
-        <li>Multi-View 3D Reconstruction</li>
-        <li>Neural Representations</li>
-        <li>Datasets and Benchmarks</li>
-        <li>Evaluation Metrics</li>
-        <li>Applications</li>
-        <li>Challenges and Limitations</li>
-        <li>Future Directions</li>
-        <li>Conclusion</li>
-        <li>References</li>
-    </ol>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">2</div>
-</div>
-
-<!-- Page 3: Introduction -->
-<div class="page">
-    <h1>1. Introduction</h1>
-    
-    <p>The ability to perceive and reconstruct three-dimensional structure from two-dimensional images is a cornerstone capability in computer vision.  Humans perform this task effortlessly, leveraging years of visual experience and sophisticated neural processing. However, teaching machines to accomplish similar feats has proven to be one of the most challenging problems in artificial intelligence.</p>
-    
-    <div class="image-container">
-        <img src="https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fs41598-024-64805-y/MediaObjects/41598_2024_64805_Fig1_HTML.png" alt="3D Reconstruction Example">
-        <div class="image-caption">Figure 1. 1: Overview of 3D reconstruction from 2D images</div>
-    </div>
-    
-    <h2>1.1 Motivation</h2>
-    <p>The motivation for 3D reconstruction from images stems from numerous practical applications:</p>
-    
-    <ul>
-        <li><strong>Autonomous Navigation:</strong> Self-driving vehicles require accurate 3D understanding of their environment for safe navigation and obstacle avoidance.</li>
-        <li><strong>Augmented and Virtual Reality:</strong> Immersive experiences demand realistic 3D models of real-world scenes and objects.</li>
-        <li><strong>Robotics:</strong> Robots need 3D perception for manipulation, grasping, and interaction with physical environments.</li>
-        <li><strong>Digital Preservation:</strong> Cultural heritage sites and artifacts can be digitally preserved through 3D reconstruction.</li>
-        <li><strong>Medical Imaging:</strong> 3D reconstruction aids in diagnosis, surgical planning, and medical education.</li>
-    </ul>
-    
-    <h2>1.2 The Challenge</h2>
-    <p>Reconstructing 3D structure from 2D images is fundamentally an ill-posed problem. A single 2D projection can correspond to infinitely many 3D configurations.  The challenge becomes even more complex when dealing with monocular images, where depth information is completely absent.  Additional complications include:</p>
-    
-    <div class="info-box">
-        <ul style="margin-bottom: 0;">
-            <li>Occlusions and self-occlusions</li>
-            <li>Varying lighting conditions</li>
-            <li>Texture-less surfaces</li>
-            <li>Reflective and transparent materials</li>
-            <li>Scale ambiguity in monocular reconstruction</li>
-        </ul>
-    </div>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">3</div>
-</div>
-
-<!-- Page 4: Background and Fundamentals -->
-<div class="page">
-    <h1>2. Background and Fundamentals</h1>
-    
-    <h2>2.1 3D Representations</h2>
-    <p>Before delving into reconstruction methods, it is essential to understand how 3D geometry can be represented computationally. Different representations offer various trade-offs between memory efficiency, rendering speed, and ease of manipulation. </p>
-    
-    <h3>2.1.1 Point Clouds</h3>
-    <p>Point clouds represent 3D geometry as a set of points in 3D space, typically denoted as <em>P = {p₁, p₂, ..., pₙ}</em> where each <em>pᵢ ∈ ℝ³</em>. Point clouds are simple and flexible but lack explicit connectivity information and can be memory-intensive for detailed representations.</p>
-    
-    <h3>2.1.2 Mesh Representations</h3>
-    <p>Meshes represent surfaces using vertices, edges, and faces (typically triangles or polygons). They provide explicit connectivity and are widely used in computer graphics for rendering.  However, they can be topologically complex and challenging to predict directly with neural networks.</p>
-    
-    <div class="image-container">
-        <img src="https://pytorch.org/assets/images/resnet.png" alt="Mesh Representation">
-        <div class="image-caption">Figure 2.1: Neural network architecture for 3D representations</div>
-    </div>
-    
-    <h3>2.1.3 Voxel Grids</h3>
-    <p>Voxels extend the concept of 2D pixels to 3D space, representing geometry as a regular 3D grid where each cell is either occupied or empty.  Voxel representations are intuitive and easily processed by 3D convolutional networks but suffer from cubic memory growth with resolution.</p>
-    
-    <h3>2.1.4 Implicit Representations</h3>
-    <p>Implicit representations define 3D geometry through continuous functions, such as signed distance functions (SDFs) or occupancy functions. These representations have gained significant attention with neural implicit representations like Neural Radiance Fields (NeRF).</p>
-    
-    <h2>2.2 Camera Models and Geometry</h2>
-    <p>Understanding camera projection is fundamental to 3D reconstruction. The pinhole camera model describes the relationship between 3D world coordinates and 2D image coordinates through intrinsic and extrinsic parameters.</p>
-    
-    <div class="info-box">
-        <p><strong>Intrinsic Parameters:</strong> Include focal length, principal point, and lens distortion coefficients that describe the camera's internal characteristics.</p>
-        <p style="margin-bottom: 0;"><strong>Extrinsic Parameters:</strong> Describe the camera's position and orientation in the world coordinate system through rotation and translation. </p>
-    </div>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">4</div>
-</div>
-
-<!-- Page 5: Traditional Methods -->
-<div class="page">
-    <h1>3.  Traditional 3D Reconstruction Methods</h1>
-    
-    <p>Before the deep learning revolution, computer vision relied on geometric and optimization-based methods for 3D reconstruction. Understanding these classical approaches provides important context for modern learning-based techniques.</p>
-    
-    <h2>3.1 Structure from Motion (SfM)</h2>
-    <p>Structure from Motion is a technique for reconstructing 3D structure from unordered collections of 2D images. The classic SfM pipeline consists of several stages:</p>
-    
-    <ol>
-        <li><strong>Feature Detection and Matching:</strong> Identifying and matching distinctive points (e.g., SIFT, SURF) across images</li>
-        <li><strong>Camera Pose Estimation:</strong> Computing relative camera positions and orientations</li>
-        <li><strong>Triangulation:</strong> Reconstructing 3D point positions from multiple views</li>
-        <li><strong>Bundle Adjustment:</strong> Jointly optimizing camera parameters and 3D point positions</li>
-    </ol>
-    
-    <div class="image-container">
-        <img src="https://capsulesbot.com/imgs/apolloscape_sfm/bundle_adj_2x.png" alt="Structure from Motion">
-        <div class="image-caption">Figure 3.1: Structure from Motion pipeline illustration</div>
-    </div>
-    
-    <h2>3.2 Multi-View Stereo (MVS)</h2>
-    <p>Multi-View Stereo methods aim to generate dense 3D reconstructions given calibrated camera poses. Traditional MVS approaches include:</p>
-    
-    <div class="two-column">
-        <div>
-            <h3>Depth Map Fusion</h3>
-            <p>Compute depth maps for individual views and fuse them into a consistent 3D model. </p>
+    <!-- Page 2: Introduction -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>1. Introduction</h2>
+            
+            <p>Three-dimensional reconstruction from images represents one of the most challenging and fascinating problems in computer vision. The ability to recover 3D structure from 2D images has profound implications across numerous domains, including robotics, augmented reality, autonomous driving, medical imaging, and cultural heritage preservation. Traditional approaches to 3D reconstruction have relied heavily on geometric methods and multi-view stereo techniques, which, while effective, often require extensive calibration and multiple viewpoints with significant overlap.</p>
+            
+            <p>The emergence of deep learning has revolutionized the field of 3D reconstruction, offering novel approaches that can learn complex mappings from images to 3D representations. Unlike classical methods that depend on explicit geometric constraints and feature matching, deep learning-based approaches can implicitly learn these relationships from large datasets, often producing more robust results in challenging scenarios such as textureless regions, occlusions, and varying lighting conditions.</p>
+            
+            <h3>1.1 Motivation</h3>
+            
+            <p>The motivation for employing deep learning in 3D reconstruction stems from several key advantages. First, neural networks can learn to extract high-level semantic information that complements low-level geometric cues, enabling more accurate reconstruction of complex scenes. Second, deep learning methods can be trained end-to-end, automatically discovering optimal feature representations without manual engineering. Third, these approaches demonstrate remarkable generalization capabilities, performing well even on previously unseen object categories and scene types.</p>
+            
+            <h3>1.2 Problem Statement</h3>
+            
+            <p>This report addresses the fundamental challenge of reconstructing three-dimensional geometry from monocular (single-view) and multi-view images using deep learning techniques. The problem encompasses several sub-challenges: recovering accurate depth information, handling ambiguities inherent in the inverse mapping from 2D to 3D, managing occlusions and missing data, and producing high-quality 3D representations that are both geometrically accurate and computationally efficient.</p>
+            
+            <p>We explore various deep learning architectures and methodologies that tackle these challenges, examining both monocular depth estimation techniques and multi-view stereo reconstruction approaches. The report provides a comprehensive analysis of state-of-the-art methods, their underlying principles, and their practical applications.</p>
         </div>
-        <div>
-            <h3>Volumetric Methods</h3>
-            <p>Represent space as a volume and carve away inconsistent regions based on photo-consistency.</p>
+        <div class="page-number">2</div>
+    </div>
+
+    <!-- Page 3: Background and Fundamentals -->
+    <div class="page content-page">
+        <div class="section-content">
+
+
+<h2>2. Background and Fundamentals</h2>
+            
+            <h3>2.1 3D Representation Methods</h3>
+            
+            <p>Before delving into deep learning approaches, it is essential to understand the various ways 3D geometry can be represented. Each representation offers different trade-offs between expressiveness, computational efficiency, and ease of manipulation.</p>
+            
+            <p><strong>Point Clouds:</strong> The simplest 3D representation consists of unordered sets of points in 3D space. Point clouds are flexible and can represent arbitrary geometries, but they lack explicit surface information and can be memory-intensive for high-resolution reconstructions.</p>
+            
+            <p><strong>Voxel Grids:</strong> Voxel representations discretize 3D space into a regular grid of cubic elements. This representation enables the use of 3D convolutional networks but suffers from cubic memory complexity, limiting the achievable resolution.</p>
+            
+            <p><strong>Mesh Representations:</strong> Polygonal meshes define surfaces through vertices, edges, and faces. They provide explicit topology and are widely supported by rendering engines, but are challenging to predict directly with neural networks due to their irregular structure.</p>
+            
+            <p><strong>Implicit Representations:</strong> Recent approaches represent 3D geometry implicitly through continuous functions, such as signed distance fields or occupancy functions. These representations offer arbitrary resolution and topological flexibility.</p>
+            
+            <h3>2.2 Classical 3D Reconstruction</h3>
+            
+            <p>Traditional 3D reconstruction methods can be broadly categorized into several approaches. Structure from Motion (SfM) techniques reconstruct 3D structure by tracking feature points across multiple images and estimating camera poses simultaneously. Multi-View Stereo (MVS) methods densify the sparse reconstructions obtained from SfM by performing photometric matching across multiple calibrated views.</p>
+            
+            <p>Monocular depth estimation in classical approaches often relies on geometric cues such as perspective, texture gradients, and atmospheric effects. However, these methods struggle with scale ambiguity and cannot reliably recover absolute depth without additional information.</p>
         </div>
+        <div class="page-number">3</div>
     </div>
-    
-    <h2>3.3 Stereo Vision</h2>
-    <p>Stereo vision uses two calibrated cameras with a known baseline to compute depth through triangulation. The key steps include:</p>
-    
-    <ul>
-        <li>Image rectification to align epipolar lines</li>
-        <li>Correspondence matching to find matching pixels</li>
-        <li>Disparity computation and refinement</li>
-        <li>Depth calculation from disparity using camera parameters</li>
-    </ul>
-    
-    <h2>3.4 Limitations of Traditional Methods</h2>
-    <div class="info-box">
-        <p><strong>Traditional methods face several limitations:</strong></p>
-        <ul style="margin-bottom: 0;">
-            <li>Require textured surfaces for feature matching</li>
-            <li>Struggle with reflective, transparent, or textureless regions</li>
-            <li>Computationally expensive optimization procedures</li>
-            <li>Sensitive to parameter tuning and initialization</li>
-            <li>Limited ability to leverage prior knowledge about object categories</li>
-        </ul>
-    </div>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">5</div>
-</div>
 
-<!-- Page 6: Deep Learning Foundations -->
-<div class="page">
-    <h1>4. Deep Learning Foundations for 3D Reconstruction</h1>
-    
-    <p>Deep learning has revolutionized 3D reconstruction by enabling data-driven approaches that learn complex mappings from images to 3D representations. This section explores the neural network architectures that form the foundation of modern reconstruction methods.</p>
-    
-    <h2>4.1 Convolutional Neural Networks (CNNs)</h2>
-    <p>CNNs are the backbone of most image-based 3D reconstruction systems. Their hierarchical feature learning capability makes them ideal for extracting visual patterns at multiple scales. </p>
-    
-    <div class="image-container">
-        <img src="https://www.researchgate.net/publication/339396982/figure/fig1/AS:941463663804431@1601473837515/The-architecture-of-a-standard-CNN-model-with-feature-extraction-and-fully-connected. png" alt="CNN Architecture">
-        <div class="image-caption">Figure 4.1: Typical CNN architecture for feature extraction</div>
-    </div>
-    
-    <h3>4.1.1 Encoder-Decoder Architectures</h3>
-    <p>Encoder-decoder networks are widely used for image-to-3D tasks.  The encoder progressively reduces spatial dimensions while increasing feature depth, extracting high-level semantic information. The decoder then upsamples these features to produce output representations.</p>
-    
-    <h2>4.2 3D Convolutional Networks</h2>
-    <p>Extending 2D convolutions to 3D enables direct processing of volumetric data. However, computational and memory requirements scale cubically, limiting practical resolutions.  Key architectures include:</p>
-    
-    <table>
-        <tr>
-            <th>Architecture</th>
-            <th>Key Feature</th>
-            <th>Application</th>
-        </tr>
-        <tr>
-            <td>3D-R2N2</td>
-            <td>Recurrent 3D CNN</td>
-            <td>Voxel reconstruction from single/multiple views</td>
-        </tr>
-        <tr>
-            <td>OGN</td>
-            <td>Octree-based representation</td>
-            <td>Efficient high-resolution voxel grids</td>
-        </tr>
-        <tr>
-            <td>Pix2Vox</td>
-            <td>Context-aware fusion</td>
-            <td>Multi-view voxel reconstruction</td>
-        </tr>
-    </table>
-    
-    <h2>4.3 Generative Models</h2>
-    <p>Generative models learn the distribution of 3D shapes, enabling reconstruction even from limited or ambiguous input. </p>
-    
-    <h3>4.3.1 Generative Adversarial Networks (GANs)</h3>
-    <p>GANs consist of a generator that creates 3D reconstructions and a discriminator that distinguishes real from generated samples. This adversarial training produces more realistic and detailed reconstructions.</p>
-    
-    <h3>4.3.2 Variational Autoencoders (VAEs)</h3>
-    <p>VAEs learn a probabilistic latent representation of 3D shapes, providing a smooth and continuous shape space useful for reconstruction and shape completion.</p>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">6</div>
-</div>
+    <!-- Page 4: Deep Learning Architectures -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>3. Deep Learning Architectures for 3D Reconstruction</h2>
+            
+            <h3>3.1 Convolutional Neural Networks</h3>
+            
+            <p>Convolutional Neural Networks (CNNs) form the backbone of most deep learning approaches to 3D reconstruction. CNNs are particularly well-suited for processing image data due to their translation-equivariance and ability to learn hierarchical feature representations. Encoder-decoder architectures, which first compress input images into compact latent representations and then expand them to produce output reconstructions, have proven especially effective.</p>
+            
+            <p>Popular encoder architectures include ResNet, VGG, and EfficientNet, which extract multi-scale features from input images. These features capture both low-level details like edges and textures, and high-level semantic information about objects and scene layout. Decoder networks then process these features to generate depth maps, voxel grids, or other 3D representations.</p>
+            
+            <h3>3.2 Specialized Architectures</h3>
+            
+            <p><strong>U-Net Architecture:</strong> Originally developed for medical image segmentation, U-Net has become a standard choice for dense prediction tasks including depth estimation. Its skip connections between encoder and decoder layers enable the network to preserve fine-grained details while leveraging high-level semantic features.</p>
 
-<!-- Page 7: Monocular 3D Reconstruction -->
-<div class="page">
-    <h1>5. Monocular 3D Reconstruction</h1>
-    
-    <p>Reconstructing 3D structure from a single image is particularly challenging due to the complete absence of explicit depth information. Deep learning approaches leverage learned priors from large datasets to resolve this ambiguity.</p>
-    
-    <h2>5.1 Depth Estimation</h2>
-    <p>Monocular depth estimation predicts a depth value for each pixel in a single image. Modern approaches use deep neural networks trained on datasets with ground truth depth from LiDAR sensors or synthetic data.</p>
-    
-    <div class="image-container">
-        <img src="https://www.mdpi.com/sensors/sensors-21-00054/article_deploy/html/images/sensors-21-00054-g001.png" alt="Depth Estimation">
-        <div class="image-caption">Figure 5.1: Example of monocular depth estimation from a single RGB image</div>
-    </div>
-    
-    <h3>5.1.1 Supervised Depth Estimation</h3>
-    <p>Supervised methods train networks using pairs of RGB images and ground truth depth maps. Notable architectures include:</p>
-    
-    <ul>
-        <li><strong>FCRN (Fully Convolutional Residual Networks):</strong> Uses ResNet encoder with upsampling layers</li>
-        <li><strong>DenseDepth:</strong> Employs dense connections for efficient feature reuse</li>
-        <li><strong>AdaBins:</strong> Adaptive binning strategy for improved accuracy</li>
-    </ul>
-    
-    <h3>5.1.2 Self-Supervised Depth Estimation</h3>
-    <p>Self-supervised approaches overcome the scarcity of ground truth depth by using photometric consistency between stereo pairs or video sequences as supervision signal.</p>
-    
-    <div class="info-box">
-        <p><strong>Key Innovation:</strong> Monodepth2 and similar methods use view synthesis as a proxy task, learning to predict depth by reconstructing one view from another using the predicted depth and known camera motion.</p>
-    </div>
-    
-    <h2>5.2 Single-View 3D Object Reconstruction</h2>
-    <p>Beyond depth maps, complete 3D object reconstruction from single images aims to predict full 3D geometry including occluded regions. </p>
-    
-    <h3>5.2.1 Category-Specific Reconstruction</h3>
-    <p>Learning-based methods can leverage category-specific shape priors.  For example, when reconstructing cars or chairs, the network learns typical shape characteristics from training data.</p>
-    
-    <h3>5.2.2 Category-Agnostic Reconstruction</h3>
-    <p>More recent approaches aim for generalization across object categories by learning more abstract geometric principles and shape representations.</p>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">7</div>
-</div>
 
-<!-- Page 8: Multi-View Reconstruction -->
-<div class="page">
-    <h1>6.  Multi-View 3D Reconstruction</h1>
-    
-    <p>Multi-view reconstruction leverages multiple images of the same scene or object from different viewpoints, providing stronger geometric constraints and more complete coverage.</p>
-    
-    <h2>6.1 Learning-Based Multi-View Stereo</h2>
-    <p>Deep learning has significantly advanced multi-view stereo by learning robust feature representations and matching costs that outperform hand-crafted alternatives.</p>
-    
-    <h3>6.1.1 Cost Volume-Based Methods</h3>
-    <p>These methods construct a cost volume by measuring feature similarity across different depth hypotheses, then use 3D CNNs to regularize and extract depth. </p>
-    
-    <div class="image-container">
-        <img src="https://www. mdpi.com/sensors/sensors-22-07659/article_deploy/html/images/sensors-22-07659-g001-550.jpg" alt="MVSNet">
-        <div class="image-caption">Figure 6. 1: Cost volume construction in learning-based MVS</div>
-    </div>
-    
-    <table>
-        <tr>
-            <th>Method</th>
-            <th>Key Innovation</th>
-            <th>Advantage</th>
-        </tr>
-        <tr>
-            <td>MVSNet</td>
-            <td>Differentiable homography warping</td>
-            <td>End-to-end trainable depth inference</td>
-        </tr>
-        <tr>
-            <td>R-MVSNet</td>
-            <td>Recurrent regularization</td>
-            <td>Memory efficient processing</td>
-        </tr>
-        <tr>
-            <td>CasMVSNet</td>
-            <td>Coarse-to-fine cascade</td>
-            <td>High-resolution depth maps</td>
-        </tr>
-        <tr>
-            <td>CVP-MVSNet</td>
-            <td>Cost volume pyramid</td>
-            <td>Multi-scale feature aggregation</td>
-        </tr>
-    </table>
-    
-    <h2>6.2 Attention Mechanisms for Multi-View Fusion</h2>
-    <p>Attention mechanisms help the network focus on the most informative views and features when aggregating information from multiple images.</p>
-    
-    <div class="info-box">
-        <h3>View Selection and Weighting</h3>
-        <p style="margin-bottom: 0;">Not all views contribute equally to reconstruction quality. Attention-based approaches learn to weight different views based on their relevance, visibility, and image quality.</p>
-    </div>
-    
-    <h2>6.3 Neural Rendering for Multi-View Reconstruction</h2>
-    <p>Neural rendering techniques combine classical rendering with learned components, enabling high-quality 3D reconstruction through differentiable rendering processes.</p>
-    
-    <h3>6.3.1 Differentiable Rendering</h3>
-    <p>Making the rendering process differentiable allows gradients to flow from 2D image losses back to 3D representations, enabling end-to-end optimization of 3D geometry.</p>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">8</div>
-</div>
-
-<!-- Page 9: Neural Representations -->
-<div class="page">
-    <h1>7. Neural Representations</h1>
-    
-    <p>A paradigm shift in 3D reconstruction has emerged with neural implicit representations, which encode 3D geometry and appearance as continuous functions parameterized by neural networks.</p>
-    
-    <h2>7.1 Neural Radiance Fields (NeRF)</h2>
-    <p>NeRF represents a scene as a continuous 5D function that maps 3D coordinates and viewing direction to volume density and emitted radiance. This breakthrough method achieves photorealistic novel view synthesis. </p>
-    
-    <div class="image-container">
-        <img src="https://raw.githubusercontent.com/bmild/nerf/master/imgs/pipeline.jpg" alt="NeRF Pipeline">
-        <div class="image-caption">Figure 7.1: Neural Radiance Fields (NeRF) architecture and rendering pipeline</div>
-    </div>
-    
-    <h3>7.1.1 Core Principles</h3>
-    <p>NeRF uses a multilayer perceptron (MLP) to represent the scene as a continuous function:</p>
-    
-    <div class="info-box">
-        <p><strong>F<sub>Θ</sub> : (x, d) → (c, σ)</strong></p>
-        <p><strong>Where:</strong></p>
-        <ul style="margin-bottom: 0;">
-            <li><strong>x</strong>: 3D position (x, y, z)</li>
-            <li><strong>d</strong>: viewing direction (θ, φ)</li>
-            <li><strong>c</strong>: emitted color (RGB)</li>
-            <li><strong>σ</strong>: volume density</li>
-        </ul>
-    </div>
-    
-    <h3>7. 1.2 Volume Rendering</h3>
-    <p>NeRF uses classical volume rendering techniques to render images from the neural representation.  For each camera ray, colors and densities are queried at multiple points and integrated to produce pixel colors.</p>
-    
-    <h2>7.2 NeRF Variants and Extensions</h2>
-    <p>The success of NeRF has spawned numerous extensions addressing various limitations:</p>
-    
-    <ul>
-        <li><strong>Instant-NGP:</strong> Multi-resolution hash encoding for 1000x faster training</li>
-        <li><strong>Mip-NeRF:</strong> Anti-aliasing through integrated positional encoding</li>
-        <li><strong>NeRF++:</strong> Handling unbounded scenes and backgrounds</li>
-        <li><strong>Dynamic NeRF:</strong> Modeling dynamic scenes with temporal dimension</li>
-        <li><strong>PixelNeRF:</strong> Generalizable NeRF from few input views</li>
-    </ul>
-    
-    <h2>7.3 Signed Distance Functions (SDF)</h2>
-    <p>SDF-based representations encode surfaces as the zero level-set of a continuous function that outputs signed distance to the nearest surface. </p>
-    
-    <h3>Notable SDF Methods:</h3>
-    <ul>
-        <li><strong>DeepSDF:</strong> Learn shape prior in latent space</li>
-        <li><strong>NeuS:</strong> Unbiased surface reconstruction from images</li>
-        <li><strong>VolSDF:</strong> Volume rendering with SDF for improved geometry</li>
-    </ul>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">9</div>
-</div>
-
-<!-- Page 10: Datasets and Benchmarks -->
-<div class="page">
-    <h1>8. Datasets and Benchmarks</h1>
-    
-    <p>Progress in deep learning-based 3D reconstruction relies heavily on large-scale datasets with diverse scenes, objects, and ground truth annotations. This section surveys key datasets used for training and evaluation.</p>
-    
-    <h2>8. 1 Indoor Scene Datasets</h2>
-    
-    <table>
-        <tr>
-            <th>Dataset</th>
-            <th>Images</th>
-            <th>Ground Truth</th>
-            <th>Key Features</th>
-        </tr>
-        <tr>
-            <td>NYU Depth V2</td>
-            <td>1,449</td>
-            <td>Kinect depth</td>
-            <td>Indoor scenes, semantic labels</td>
-        </tr>
-        <tr>
-            <td>ScanNet</td>
-            <td>2. 5M</td>
-            <td>RGB-D scans</td>
-            <td>1,513 indoor scenes, semantic annotations</td>
-        </tr>
-        <tr>
-            <td>Matterport3D</td>
-            <td>194K</td>
-            <td>RGB-D panoramas</td>
-            <td>90 buildings, semantic segmentation</td>
-        </tr>
-    </table>
-    
-    <h2>8.2 Outdoor Scene Datasets</h2>
-    
-    <div class="image-container">
-        <img src="https://www.researchgate.net/publication/340810694/figure/fig4/AS:882734771736576@1587471778190/Some-examples-from-the-KITTI-dataset-a-case-1-the-vehicle-behind-cyan-occludes-the. ppm" alt="KITTI Dataset">
-        <div class="image-caption">Figure 8.1: Example from KITTI autonomous driving dataset</div>
-    </div>
-    
-    <ul>
-        <li><strong>KITTI:</strong> Autonomous driving dataset with stereo images, LiDAR depth, and 3D object annotations</li>
-        <li><strong>Cityscapes:</strong> Urban street scenes with dense pixel-level annotations</li>
-        <li><strong>Waymo Open Dataset:</strong> Large-scale autonomous driving data with high-quality sensor information</li>
-    </ul>
-    
-    <h2>8.3 Object-Centric Datasets</h2>
-    
-    <div class="info-box">
-        <h3>ShapeNet</h3>
-        <p style="margin-bottom: 0;">ShapeNet is a large-scale repository of 3D CAD models organized by semantic categories. It contains over 50,000 models across various object categories and is widely used for training single/multi-view reconstruction networks.</p>
-    </div>
-    
-    <ul>
-        <li><strong>ModelNet:</strong> 10 or 40 category classification benchmark with CAD models</li>
-        <li><strong>Pix3D:</strong> 10K image-shape pairs with precise alignment</li>
-        <li><strong>CO3D:</strong> Common Objects in 3D with multi-view images of real objects</li>
-    </ul>
-    
-    <h2>8.4 Synthetic Datasets</h2>
-    <p>Synthetic data generation provides unlimited diverse training samples with perfect ground truth:</p>
-    
-    <ul>
-        <li><strong>Replica:</strong> High-quality indoor environments for AR/VR research</li>
-        <li><strong>Hypersim:</strong> Photorealistic synthetic indoor scenes</li>
-        <li><strong>BlendedMVS:</strong> Large-scale MVS dataset with varied objects and scenes</li>
-    </ul>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">10</div>
-</div>
-
-<!-- Page 11: Evaluation Metrics -->
-<div class="page">
-    <h1>9.  Evaluation Metrics</h1>
-    
-    <p>Quantitative evaluation is crucial for comparing different 3D reconstruction methods. Various metrics assess different aspects of reconstruction quality, from geometric accuracy to visual fidelity.</p>
-    
-    <h2>9.1 Geometric Accuracy Metrics</h2>
-    
-    <h3>9.1.1 Chamfer Distance (CD)</h3>
-    <p>Chamfer Distance measures the average distance between two point clouds, considering both forward and backward directions:</p>
-    
-    <div class="info-box">
-        <p style="margin-bottom: 0;"><strong>CD(S₁, S₂) = Σ min||x - y||² + Σ min||x - y||²</strong></p>
-        <p style="margin-top: 10px; margin-bottom: 0;">Where S₁ and S₂ are the predicted and ground truth point sets respectively. </p>
-    </div>
-    
-    <h3>9.1.2 Hausdorff Distance</h3>
-    <p>Measures the maximum distance between two point sets, capturing worst-case deviations:</p>
-    <p><em>d<sub>H</sub>(S₁, S₂) = max{sup<sub>x∈S₁</sub> inf<sub>y∈S₂</sub> d(x,y), sup<sub>y∈S₂</sub> inf<sub>x∈S₁</sub> d(x,y)}</em></p>
-    
-    <h3>9.1.3 Earth Mover's Distance (EMD)</h3>
-    <p>Also known as Wasserstein distance, EMD computes the minimum cost of transforming one point cloud into another, providing a more perceptually meaningful metric than Chamfer Distance.</p>
-    
-    <h2>9.2 Depth Estimation Metrics</h2>
-    
-    <table>
-        <tr>
-            <th>Metric</th>
-            <th>Formula</th>
-            <th>Better Value</th>
-        </tr>
-        <tr>
-            <td>Absolute Relative Error</td>
-            <td>|d<sub>pred</sub> - d<sub>gt</sub>| / d<sub>gt</sub></td>
-            <td>Lower</td>
-        </tr>
-        <tr>
-            <td>Root Mean Square Error</td>
-            <td>√(Σ(d<sub>pred</sub> - d<sub>gt</sub>)²)</td>
-            <td>Lower</td>
-        </tr>
-        <tr>
-            <td>Threshold Accuracy (δ < 1. 25)</td>
-            <td>% where max(d<sub>pred</sub>/d<sub>gt</sub>, d<sub>gt</sub>/d<sub>pred</sub>) < 1.25</td>
-            <td>Higher</td>
-        </tr>
-    </table>
-    
-    <h2>9. 3 Visual Quality Metrics</h2>
-    
-    <h3>9.3.1 Peak Signal-to-Noise Ratio (PSNR)</h3>
-    <p>Commonly used for evaluating novel view synthesis quality, measuring the ratio between maximum signal power and corrupting noise power.  Higher PSNR indicates better quality.</p>
-    
-    <h3>9.3.2 Structural Similarity Index (SSIM)</h3>
-    <p>Assesses perceived image quality by considering luminance, contrast, and structure.  SSIM ranges from -1 to 1, with 1 indicating perfect similarity.</p>
-    
-    <h3>9.3.3 Learned Perceptual Image Patch Similarity (LPIPS)</h3>
-    <p>Uses deep features from pretrained networks to measure perceptual similarity, often correlating better with human judgment than PSNR or SSIM.</p>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">11</div>
-</div>
-
-<!-- Page 12: Applications -->
-<div class="page">
-    <h1>10.  Applications</h1>
-    
-    <p>Deep learning-based 3D reconstruction has enabled transformative applications across diverse domains.  This section highlights key application areas and their impact.</p>
-    
-    <h2>10.1 Autonomous Vehicles</h2>
-    <p>Self-driving cars rely heavily on accurate 3D scene understanding for safe navigation. 3D reconstruction from cameras complements LiDAR sensors, providing:</p>
-    
-    <ul>
-        <li>Obstacle detection and tracking</li>
-        <li>Drivable space estimation</li>
-        <li>3D bounding boxes for vehicles, pedestrians, and cyclists</li>
-        <li>HD map generation and localization</li>
-    </ul>
-    
-    <div class="image-container">
-        <img src="https://www. labellerr.com/blog/content/images/2022/11/main-1. webp" alt="Autonomous Vehicle">
-        <div class="image-caption">Figure 10.1: 3D reconstruction for autonomous driving</div>
-    </div>
-    
-    <h2>10.2 Augmented and Virtual Reality</h2>
-    <p>AR/VR applications require real-time 3D understanding of environments for immersive experiences:</p>
-    
-    <div class="two-column">
-        <div>
-            <h3>Augmented Reality</h3>
-            <ul style="margin-bottom: 0;">
-                <li>Surface detection for object placement</li>
-                <li>Occlusion handling</li>
-                <li>Spatial mapping</li>
-            </ul>
+<p><strong>Point Cloud Networks:</strong> PointNet and its successor PointNet++ introduced methods for directly processing unordered point sets. These networks use symmetric operations like max-pooling to achieve permutation invariance, enabling them to work with point cloud data without imposing artificial ordering.</p>
+            
+            <p><strong>3D Convolutional Networks:</strong> For voxel-based representations, 3D CNNs extend traditional 2D convolutions to three dimensions. While computationally expensive, they can capture true volumetric features and have been used in applications like occupancy prediction and volumetric fusion.</p>
+            
+            <div class="highlight-box">
+                <p><strong>Key Insight:</strong> The choice of architecture depends heavily on the target 3D representation and the specific application requirements. Modern approaches often combine multiple architectural components to leverage their complementary strengths.</p>
+            </div>
         </div>
-        <div>
-            <h3>Virtual Reality</h3>
-            <ul style="margin-bottom: 0;">
-                <li>Photogrammetry for environment capture</li>
-                <li>Avatar creation</li>
-                <li>Virtual object interaction</li>
-            </ul>
+        <div class="page-number">4</div>
+    </div>
+
+    <!-- Page 5: Monocular Depth Estimation -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>4. Monocular Depth Estimation</h2>
+            
+            <h3>4.1 Supervised Learning Approaches</h3>
+            
+            <p>Supervised monocular depth estimation methods learn to predict depth maps from single images by training on datasets with ground-truth depth information. These approaches typically use an encoder-decoder architecture where the encoder extracts features from the input image and the decoder generates a per-pixel depth prediction.</p>
+            
+            <p>Training supervised models requires large datasets with accurate depth measurements, which can be obtained through various means: LiDAR sensors, stereo camera rigs, or depth cameras like Kinect. The model learns to recognize depth cues such as object size, perspective, occlusion relationships, and atmospheric effects. Loss functions commonly combine multiple terms including L1 or L2 reconstruction error, gradient matching terms to preserve sharp depth discontinuities, and sometimes adversarial losses to improve perceptual quality.</p>
+            
+            <h3>4.2 Self-Supervised Learning</h3>
+            
+            <p>Self-supervised approaches address the challenge of obtaining ground-truth depth data by using geometric consistency as a supervisory signal. These methods typically use stereo image pairs or monocular video sequences during training. The key insight is that if the predicted depth is correct, warping one view to another using the estimated depth and known camera parameters should reconstruct the target view accurately.</p>
+            
+            <p>During training, the network predicts depth for one view and uses it to synthesize another view through differentiable warping. The photometric error between the synthesized and actual images provides the training signal. This approach enables learning from vast amounts of unlabeled video data, significantly expanding the available training resources.</p>
+            
+            <p>Self-supervised methods must handle several challenges: occlusions where certain regions are visible in only one view, low-texture regions where photometric matching is ambiguous, and violations of the static scene assumption in the presence of moving objects. Advanced techniques address these issues through occlusion reasoning, minimum reprojection loss, and dynamic object masking.</p>
         </div>
+        <div class="page-number">5</div>
     </div>
-    
-    <h2>10.3 Robotics and Manufacturing</h2>
-    <p>Robots equipped with vision-based 3D reconstruction can perform complex manipulation tasks:</p>
-    
-    <div class="info-box">
-        <ul style="margin-bottom: 0;">
-            <li><strong>Bin Picking:</strong> Identifying and grasping objects from cluttered containers</li>
-            <li><strong>Quality Inspection:</strong> Detecting defects through 3D surface analysis</li>
-            <li><strong>Assembly:</strong> Precise part alignment using 3D pose estimation</li>
-            <li><strong>Navigation:</strong> Obstacle avoidance in dynamic environments</li>
-        </ul>
-    </div>
-    
-    <h2>10. 4 Cultural Heritage Preservation</h2>
-    <p>Digital 3D reconstruction enables preservation and sharing of cultural artifacts and historical sites:</p>
-    
-    <ul>
-        <li>High-fidelity digital archives of sculptures and monuments</li>
-        <li>Virtual museum experiences</li>
-        <li>Restoration guidance through detailed 3D models</li>
-        <li>Archaeological site documentation</li>
-    </ul>
-    
-    <h2>10.5 E-commerce and Entertainment</h2>
-    <p>Consumer applications benefit from accessible 3D reconstruction:</p>
-    
-    <ul>
-        <li><strong>Product Visualization:</strong> 360° views and AR try-on experiences</li>
-        <li><strong>3D Photography:</strong> Capturing depth for creative effects</li>
-        <li><strong>Content Creation:</strong> Streamlined asset generation for games and films</li>
-    </ul>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">12</div>
-</div>
 
-<!-- Page 13: Challenges -->
-<div class="page">
-    <h1>11.  Challenges and Limitations</h1>
-    
-    <p>Despite remarkable progress, deep learning-based 3D reconstruction faces several fundamental challenges that present opportunities for future research.</p>
-    
-    <h2>11. 1 Generalization</h2>
-    <p>Most learning-based methods struggle to generalize beyond their training distribution:</p>
-    
-    <div class="info-box">
-        <ul style="margin-bottom: 0;">
-            <li><strong>Domain Gap:</strong> Models trained on synthetic data often perform poorly on real images</li>
-            <li><strong>Category Specificity:</strong> Object-specific models fail on unseen categories</li>
-            <li><strong>Environmental Conditions:</strong> Performance degrades with varying lighting, weather, or seasons</li>
-        </ul>
-    </div>
-    
-    <h2>11.2 Computational Requirements</h2>
-    <p>State-of-the-art methods often demand substantial computational resources:</p>
-    
-    <ul>
-        <li><strong>Training:</strong> NeRF and similar methods require hours or days for scene optimization</li>
-        <li><strong>Inference:</strong> High-resolution reconstruction can be prohibitively slow for real-time applications</li>
-        <li><strong>Memory:</strong> Volumetric representations consume significant memory, limiting resolution</li>
-    </ul>
-    
-    <h2>11.3 Handling Challenging Scenarios</h2>
-    
-    <h3>11.3.1 Occlusions</h3>
-    <p>Reconstructing occluded regions requires strong shape priors and remains challenging, particularly for monocular methods where no direct geometric constraints exist.</p>
-    
-    <h3>11.3. 2 Reflective and Transparent Surfaces</h3>
-    <p>Materials that violate Lambertian assumptions cause correspondence matching to fail.  Learning-based methods can learn to handle some cases but remain unreliable for complex reflections and refractions.</p>
-    
-    <h3>11.3.3 Textureless Regions</h3>
-    <p>Areas lacking distinctive features pose challenges for both traditional and learning-based methods. While deep learning can leverage semantic understanding, accuracy in these regions typically suffers.</p>
-    
-    <h2>11.4 Data Requirements</h2>
-    <p>Deep learning's data hunger presents practical challenges:</p>
-    
-    <ul>
-        <li>Large-scale datasets with accurate 3D ground truth are expensive to collect</li>
-        <li>Synthetic data may not capture real-world complexity</li>
-        <li>Few-shot learning remains challenging for 3D tasks</li>
-    </ul>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">13</div>
-</div>
+    <!-- Page 6: Multi-View Reconstruction -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>5. Multi-View Reconstruction with Deep Learning</h2>
 
-<!-- Page 14: Future Directions -->
-<div class="page">
-    <h1>12. Future Directions</h1>
-    
-    <p>The field of 3D reconstruction continues to evolve rapidly.  Several promising research directions are poised to address current limitations and unlock new capabilities.</p>
-    
-    <h2>12.1 Transformer-Based Architectures</h2>
-    <p>Vision transformers have shown remarkable success in 2D vision tasks and are increasingly applied to 3D reconstruction:</p>
-    
-    <ul>
-        <li><strong>Attention Mechanisms:</strong> Learning long-range dependencies in 3D space</li>
-        <li><strong>Cross-View Attention:</strong> Better multi-view feature aggregation</li>
-        <li><strong>Tokenized Representations:</strong> Treating 3D elements as discrete tokens</li>
-    </ul>
-    
-    <h2>12.2 Neural Scene Representations</h2>
-    <p>Continued evolution of implicit neural representations promises:</p>
-    
-    <div class="info-box">
-        <ul style="margin-bottom: 0;">
-            <li><strong>Faster Training:</strong> Techniques like hash encoding and meta-learning</li>
-            <li><strong>Dynamic Scenes:</strong> Efficient 4D representations for moving objects</li>
-            <li><strong>Compositional Representations:</strong> Decomposing scenes into objects and backgrounds</li>
-            <li><strong>Generative Models:</strong> Learning distributions over neural scene representations</li>
-        </ul>
-    </div>
-    
-    <h2>12.3 Self-Supervised and Unsupervised Learning</h2>
-    <p>Reducing reliance on expensive labeled data through:</p>
-    
-    <ul>
-        <li>Contrastive learning for 3D representation</li>
-        <li>Multi-modal self-supervision (video, stereo, temporal consistency)</li>
-        <li>Geometric consistency as supervision signal</li>
-    </ul>
-    
-    <h2>12.4 Edge Computing and Efficiency</h2>
-    <p>Enabling real-time reconstruction on resource-constrained devices:</p>
-    
-    <ul>
-        <li>Neural architecture search for efficient models</li>
-        <li>Knowledge distillation from large to compact models</li>
-        <li>Hardware-aware optimization</li>
-        <li>Hybrid classical-learning approaches</li>
-    </ul>
-    
-    <h2>12.5 Multimodal Integration</h2>
-    <p>Combining multiple sensor modalities and data types:</p>
-    
-    <ul>
-        <li>RGB + depth fusion</li>
-        <li>Camera + LiDAR integration</li>
-        <li>Vision + language for semantic reconstruction</li>
-        <li>Tactile and proprioceptive sensing for robotics</li>
-    </ul>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">14</div>
-</div>
 
-<!-- Page 15: Conclusion and References -->
-<div class="page">
-    <h1>13.  Conclusion</h1>
-    
-    <p>3D reconstruction from monocular and multi-view images has undergone a remarkable transformation through the application of deep learning. Traditional geometry-based methods have been augmented and, in many cases, surpassed by data-driven approaches that learn complex mappings from 2D observations to 3D representations.</p>
-    
-    <p>The field has progressed from simple voxel-based reconstructions to sophisticated neural implicit representations like NeRF that achieve photorealistic novel view synthesis. Multi-view stereo methods now leverage learned features and cost volumes, while monocular depth estimation has reached impressive accuracy through both supervised and self-supervised learning. </p>
-    
-    <p>Key achievements include:</p>
-    
-    <ul>
-        <li>Robust reconstruction in challenging conditions (lighting, occlusions, textureless regions)</li>
-        <li>Category-agnostic shape learning and generalization</li>
-        <li>Real-time depth estimation enabling mobile AR applications</li>
-        <li>High-fidelity scene capture for VR and digital preservation</li>
-    </ul>
-    
-    <p>However, significant challenges remain, including computational efficiency, generalization across domains, handling of non-Lambertian materials, and reducing data requirements. The future promises exciting developments through transformer architectures, improved neural representations, self-supervised learning, and efficient edge computing implementations.</p>
-    
-    <p>As 3D reconstruction technology continues to mature, its impact will expand across autonomous systems, immersive computing, robotics, and beyond. The convergence of computer vision, deep learning, and computer graphics is unlocking new possibilities for machines to perceive and interact with the three-dimensional world. </p>
-    
-    <div class="decorative-line" style="background: linear-gradient(90deg, #667eea, #764ba2); margin: 25px auto;"></div>
-    
-    <h1>14. References</h1>
-    
-    <div class="reference-item">
-        [1] Mildenhall, B., et al. (2020). "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis." <em>ECCV 2020</em>. 
+<h3>5.1 Learning-Based Multi-View Stereo</h3>
+            
+            <p>Deep learning has significantly advanced multi-view stereo reconstruction by learning to reason about photometric consistency and geometric relationships across multiple views. Unlike traditional MVS methods that rely on hand-crafted similarity metrics, learning-based approaches can discover optimal matching strategies from data.</p>
+            
+            <p>A typical pipeline begins with feature extraction, where a CNN processes each input image to produce multi-scale feature maps. These features are then aggregated across views using cost volume construction. The cost volume represents the matching cost for each 3D point across different depth hypotheses and viewing directions. 3D CNNs or recurrent networks then process this cost volume to produce refined depth predictions or 3D reconstructions.</p>
+            
+            <h3>5.2 Neural Radiance Fields (NeRF)</h3>
+            
+            <p>Neural Radiance Fields represent a paradigm shift in multi-view reconstruction. Rather than explicitly estimating depth or geometry, NeRF represents scenes as continuous 5D functions that map 3D coordinates and viewing directions to color and density values. This implicit representation is parameterized by a deep neural network.</p>
+            
+            <p>To render novel views, rays are cast through the scene and sampled at multiple points. The network evaluates the color and density at each sample point, and volume rendering techniques composite these values into pixel colors. Training optimizes the network to reproduce the input images when rendered from their original viewpoints.</p>
+            
+            <p>NeRF achieves remarkable photorealistic quality and can represent view-dependent effects like reflections and transparency. However, the original formulation requires per-scene optimization and dense input views. Recent extensions address these limitations through techniques like instant neural graphics primitives, which dramatically accelerate training, and generalizable NeRF methods that can reconstruct new scenes without per-scene optimization.</p>
+        </div>
+        <div class="page-number">6</div>
     </div>
-    
-    <div class="reference-item">
-        [2] Yao, Y., et al. (2018). "MVSNet: Depth Inference for Unstructured Multi-view Stereo." <em>ECCV 2018</em>. 
+
+    <!-- Page 7: Training Strategies and Loss Functions -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>6. Training Strategies and Loss Functions</h2>
+            
+            <h3>6.1 Loss Function Design</h3>
+            
+            <p>Effective training of 3D reconstruction networks requires carefully designed loss functions that capture the desired properties of the reconstruction. For supervised depth estimation, the primary loss is typically the difference between predicted and ground-truth depth. However, simple L1 or L2 losses alone often produce blurry results.</p>
+            
+            <p>Multi-term loss functions combine several objectives: photometric reconstruction loss ensures visual consistency, smoothness regularization encourages locally coherent depth predictions, edge-aware smoothness preserves sharp discontinuities at object boundaries, and perceptual losses based on high-level feature matching can improve visual quality.</p>
+            
+            <p>For multi-view reconstruction, consistency losses ensure that the predicted geometry produces consistent depth estimates when viewed from different angles. Silhouette losses can constrain object boundaries when masks are available, while semantic consistency can leverage category-level knowledge to guide reconstruction of specific object classes.</p>
+            
+            <h3>6.2 Training Techniques</h3>
+            
+            <p>Successful training requires careful consideration of several factors. Multi-scale training, where losses are computed at multiple resolutions, helps networks capture both coarse structure and fine details. Progressive training strategies that gradually increase resolution or task difficulty can improve convergence.</p>
+
+
+<p>Data augmentation plays a crucial role in improving generalization. Geometric augmentations like random cropping and flipping increase robustness, while photometric augmentations including color jittering and brightness variations help the network handle different lighting conditions. Advanced augmentation strategies might include random occlusion simulation or synthetic depth-of-field effects.</p>
+            
+            <div class="highlight-box">
+                <p><strong>Best Practice:</strong> Combining multiple loss terms with appropriate weighting and scheduling is crucial. Loss weights are often adjusted during training, and validation performance should guide hyperparameter selection.</p>
+            </div>
+        </div>
+        <div class="page-number">7</div>
     </div>
-    
-    <div class="reference-item">
-        [3] Godard, C., et al. (2019). "Digging Into Self-Supervised Monocular Depth Estimation." <em>ICCV 2019</em>. 
+
+    <!-- Page 8: Applications and Use Cases -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>7. Applications and Use Cases</h2>
+            
+            <h3>7.1 Autonomous Driving</h3>
+            
+            <p>3D reconstruction from cameras is essential for autonomous vehicles to understand their environment. Depth estimation enables obstacle detection, collision avoidance, and path planning. Multi-camera systems provide 360-degree coverage, and deep learning methods fuse information from multiple viewpoints to create comprehensive 3D scene representations. The ability to process monocular images is particularly valuable as it provides redundancy when other sensors fail and enables cost-effective solutions.</p>
+            
+            <h3>7.2 Augmented and Virtual Reality</h3>
+            
+            <p>AR and VR applications require accurate 3D understanding of real-world environments to place virtual objects convincingly and enable natural user interactions. Real-time depth estimation from smartphone cameras powers features like object placement, occlusion handling, and environmental understanding. Deep learning methods enable these capabilities on mobile devices with limited computational resources through efficient network architectures and optimization techniques.</p>
+            
+            <h3>7.3 Robotics and Manipulation</h3>
+            
+            <p>Robots operating in human environments must perceive 3D geometry to navigate, grasp objects, and interact safely with people. Vision-based 3D reconstruction provides flexible, cost-effective perception compared to specialized depth sensors. Deep learning approaches can handle the diverse objects and scenes robots encounter, generalizing beyond training data through learned priors about object shapes and scene layouts.</p>
+            
+            <h3>7.4 Medical Imaging</h3>
+            
+            <p>Medical applications benefit from 3D reconstruction of anatomical structures from 2D imaging modalities. Endoscopic procedures use monocular depth estimation to understand tissue geometry during minimally invasive surgeries. Reconstructing 3D anatomical models from CT or MRI slices aids surgical planning and diagnosis. Deep learning methods can incorporate domain-specific priors about anatomical structures to improve reconstruction quality.</p>
+        </div>
+        <div class="page-number">8</div>
     </div>
-    
-    <div class="reference-item">
-        [4] Müller, T., et al. (2022). "Instant Neural Graphics Primitives with a Multiresolution Hash Encoding." <em>ACM TOG 2022</em>.
+
+    <!-- Page 9: Challenges and Future Directions -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>8. Challenges and Future Directions</h2>
+            
+            <h3>8.1 Current Limitations</h3>
+            
+            <p>Despite significant progress, several challenges remain in deep learning-based 3D reconstruction. Generalization to novel scenes and objects remains difficult, particularly when test conditions differ significantly from training data. Scale ambiguity in monocular reconstruction requires either ground-truth scale information or assumptions about scene content. Computational requirements often limit real-time application, especially for methods like NeRF that require intensive sampling and evaluation.</p>
+
+
+<p>Handling dynamic scenes with moving objects presents difficulties for methods that assume static geometry. Transparent and reflective surfaces violate Lambertian surface assumptions used by many photometric consistency approaches. Limited field of view and occlusions can leave large regions unobserved, requiring hallucination of geometry based on learned priors.</p>
+            
+            <h3>8.2 Emerging Directions</h3>
+            
+            <p>Future research is pursuing several promising directions. Foundation models trained on massive diverse datasets show potential for zero-shot or few-shot adaptation to new reconstruction tasks. Combining geometric and learning-based approaches can leverage the complementary strengths of both paradigms. Neural implicit representations continue to evolve, with research into more efficient architectures and better handling of complex topology.</p>
+            
+            <p>Integration with large language models enables semantic understanding and reasoning about 3D scenes. Test-time optimization techniques adapt models to specific scenes without full retraining. Learned priors about specific object categories can dramatically improve reconstruction quality for those categories. Uncertainty quantification helps systems reason about reconstruction confidence and make safer decisions.</p>
+            
+            <h3>8.3 Toward Real-World Deployment</h3>
+            
+            <p>Practical deployment requires addressing efficiency, robustness, and reliability. Model compression techniques including pruning, quantization, and knowledge distillation can reduce computational costs while maintaining accuracy. Robustness to various lighting conditions, weather, and sensor characteristics is essential for real-world reliability.</p>
+        </div>
+        <div class="page-number">9</div>
     </div>
-    
-    <div class="reference-item">
-        [5] Schönberger, J.  L., & Frahm, J. M. (2016). "Structure-from-Motion Revisited." <em>CVPR 2016</em>. 
+
+    <!-- Page 10: Conclusion -->
+    <div class="page content-page">
+        <div class="section-content">
+            <h2>9. Conclusion</h2>
+            
+            <p>Deep learning has fundamentally transformed 3D reconstruction from images, enabling capabilities that were previously unattainable with classical geometric methods. The ability to learn complex mappings from large datasets, implicitly capture geometric and semantic priors, and handle challenging scenarios like textureless regions and varying illumination has opened new possibilities across numerous application domains.</p>
+            
+            <p>This report has examined the key approaches to deep learning-based 3D reconstruction, from monocular depth estimation to multi-view stereo and neural implicit representations. We have discussed the architectural choices, training strategies, and loss functions that enable these methods to achieve state-of-the-art results. The applications span autonomous driving, augmented reality, robotics, medical imaging, and beyond, demonstrating the broad impact of these technologies.</p>
+            
+            <p>Despite remarkable progress, challenges remain in terms of generalization, computational efficiency, and handling of complex real-world scenarios. However, ongoing research continues to push boundaries through foundation models, hybrid geometric-learning approaches, and more efficient representations. The integration of 3D reconstruction with other AI capabilities, including language understanding and reasoning, promises even more powerful future systems.</p>
+            
+            <p>As hardware capabilities improve and algorithms become more sophisticated, we can expect deep learning-based 3D reconstruction to become increasingly ubiquitous. The combination of improved accuracy, reduced computational requirements, and better generalization will enable deployment in resource-constrained environments and safety-critical applications. The field stands at an exciting juncture, with fundamental research advances translating into practical technologies that enhance how machines perceive and interact with the three-dimensional world.</p>
+
+
+<h2>10. References</h2>
+            
+            <p>1. Eigen, D., Puhrsch, C., & Fergus, R. (2014). Depth map prediction from a single image using a multi-scale deep network. Advances in Neural Information Processing Systems.</p>
+            
+            <p>2. Godard, C., Mac Aodha, O., & Brostow, G. J. (2017). Unsupervised monocular depth estimation with left-right consistency. IEEE Conference on Computer Vision and Pattern Recognition.</p>
+            
+            <p>3. Mildenhall, B., et al. (2020). NeRF: Representing scenes as neural radiance fields for view synthesis. European Conference on Computer Vision.</p>
+            
+            <p>4. Yao, Y., et al. (2018). MVSNet: Depth inference for unstructured multi-view stereo. European Conference on Computer Vision.</p>
+        </div>
+        <div class="page-number">10</div>
     </div>
-    
-    <div class="reference-item">
-        [6] Chang, A.  X., et al. (2015). "ShapeNet: An Information-Rich 3D Model Repository." <em>arXiv:1512.03012</em>. 
-    </div>
-    
-    <div class="reference-item">
-        [7] Gu, X., et al. (2021). "CasMVSNet: Cascade Cost Volume for High-Resolution Multi-View Stereo." <em>CVPR 2020</em>.
-    </div>
-    
-    <div class="reference-item">
-        [8] Park, J.  J., et al. (2019). "DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation." <em>CVPR 2019</em>. 
-    </div>
-    
-    <div class="reference-item">
-        [9] Eigen, D., et al. (2014). "Depth Map Prediction from a Single Image using a Multi-Scale Deep Network." <em>NIPS 2014</em>. 
-    </div>
-    
-    <div class="reference-item">
-        [10] Barron, J. T., et al. (2021). "Mip-NeRF: A Multiscale Representation for Anti-Aliasing Neural Radiance Fields." <em>ICCV 2021</em>. 
-    </div>
-    
-    <div class="footer">
-        3D Reconstruction from Monocular/Multi-View Images Using Deep Learning
-    </div>
-    <div class="page-number">15</div>
-</div>
 
 </body>
 </html>
