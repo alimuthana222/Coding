@@ -806,10 +806,10 @@ torch.onnx.<span class="function">export</span>(
         
         <div class="code-block">
 <span class="comment"># Quantization</span>
-quantized_value = <span class="function">round</span>(float_value / scale) + zero_point
+quantized_value = <span class="function">round</span>(original_float / scale) + zero_point
 
 <span class="comment"># Dequantization</span>
-float_value = (quantized_value - zero_point) * scale
+reconstructed_float = (quantized_value - zero_point) * scale
         </div>
         
         <h2>5.3 Symmetric vs Asymmetric Quantization</h2>
