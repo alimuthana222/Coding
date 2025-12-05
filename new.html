@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0c1222 0%, #1a1f3a 50%, #0f172a 100%);
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 22mm 20mm;
+            margin: 20px auto;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.6),
+                0 0 1px rgba(249, 115, 22, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                #f97316 0%,
+                #facc15 25%,
+                #22c55e 50%,
+                #3b82f6 75%,
+                #8b5cf6 100%);
+        }
+        
+        /* Cover Page Styles */
+        .cover-page {
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(34, 197, 94, 0.08) 0%, transparent 60%),
+                linear-gradient(180deg, #0a0f1a 0%, #0f172a 50%, #1e293b 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25mm 20mm;
+        }
+        
+        .cover-decoration {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(59, 130, 246, 0.12));
+            filter: blur(80px);
+            top: -150px;
+            right: -150px;
+            z-index: 0;
+        }
+        
+        .cover-decoration-2 {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(139, 92, 246, 0.12));
+            filter: blur(60px);
+            bottom: -100px;
+            left: -100px;
+            z-index: 0;
+        }
+        
+        .cover-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .tech-badge {
+            display: inline-flex;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-size: 10pt;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20mm;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tech-badge span {
+            padding: 0 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tech-badge span:last-child {
+            border-right: none;
+        }
+        
+        .tech-badge .pytorch { color: #ee4c2c; }
+        .tech-badge .onnx { color: #005cbf; }
+        .tech-badge .tflite { color: #ff6f00; }
+        
+        .cover-page h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 30pt;
+            margin-bottom: 8mm;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 0%, #f97316 40%, #22c55e 70%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cover-page .pipeline-visual {
+            font-family: 'Fira Code', monospace;
+            font-size: 14pt;
+            margin-bottom: 12mm;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .pipeline-visual .arrow {
+            color: #facc15;
+            font-size: 16pt;
+        }
+        
+        .pipeline-visual .framework {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .pipeline-visual .pytorch-box {
+            background: linear-gradient(135deg, rgba(238, 76, 44, 0.3), rgba(238, 76, 44, 0.1));
+            border: 1px solid rgba(238, 76, 44, 0.5);
+            color: #ff7b5a;
+        }
+        
+        .pipeline-visual .onnx-box {
+            background: linear-gradient(135deg, rgba(0, 92, 191, 0.3), rgba(0, 92, 191, 0.1));
+            border: 1px solid rgba(0, 92, 191, 0.5);
+            color: #5a9eff;
+        }
+        
+        .pipeline-visual .tflite-box {
+            background: linear-gradient(135deg, rgba(255, 111, 0, 0.3), rgba(255, 111, 0, 0.1));
+            border: 1px solid rgba(255, 111, 0, 0.5);
+            color: #ffa64d;
+        }
+        
+        .cover-page .subtitle {
+            font-size: 13pt;
+            margin-bottom: 18mm;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .students-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 25px 45px;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 15mm;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .students-box h3 {
+            font-size: 11pt;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #f97316;
+            letter-spacing: 1px;
+        }
+        
+        .students-box h3::before {
+            display: none;
+        }
+        
+        .student-name {
+            font-size: 13pt;
+            margin: 10px 0;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            direction: rtl;
+        }
+        
+        .student-name::before {
+            content: '◆';
+            color: #22c55e;
+            font-size: 8pt;
+        }
+        
+        .date {
+            font-size: 12pt;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+        }
+        
+        /* Content Page Styles */
+        .content-page {
+            justify-content: flex-start;
+            background: 
+                radial-gradient(ellipse at 0% 0%, rgba(249, 115, 22, 0.04) 0%, transparent 40%),
+                radial-gradient(ellipse at 100% 100%, rgba(59, 130, 246, 0.04) 0%, transparent 40%),
+                linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .page-number {
+            position: absolute;
+            bottom: 12mm;
+            right: 20mm;
+            font-size: 10pt;
+            color: rgba(249, 115, 22, 0.6);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .page-number::before {
+            content: '';
+            width: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.4));
+        }
+        
+        .page-header {
+            position: absolute;
+            top: 10mm;
+            left: 20mm;
+            right: 20mm;
+            font-size: 8pt;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 400;
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20pt;
+            color: #ffffff;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #f97316, #22c55e, #3b82f6);
+            border-radius: 2px;
+        }
+        
+        h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 14pt;
+            color: #f97316;
+            margin-top: 22px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2::before {
+            content: '▸';
+            color: #22c55e;
+            font-size: 12pt;
+        }
+        
+        h3 {
+            font-size: 11pt;
+            color: #3b82f6;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        p {
+            text-align: justify;
+            margin-bottom: 12px;
+            font-size: 10pt;
+            color: rgba(226, 232, 240, 0.85);
+            line-height: 1.85;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            font-size: 10pt;
+            color: rgba(226, 232, 240, 0.85);
+            position: relative;
+            padding-left: 5px;
+            line-height: 1.7;
+        }
+        
+        li::marker {
+            color: #22c55e;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(34, 197, 94, 0.05));
+            padding: 16px 18px;
+            border-left: 3px solid;
+            border-image: linear-gradient(180deg, #f97316, #22c55e) 1;
+            margin: 16px 0;
+            border-radius: 0 12px 12px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .highlight-box p {
+            margin-bottom: 0;
+            font-size: 9.5pt;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 8.5pt;
+            overflow-x: auto;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        .code-block .keyword { color: #c084fc; }
+        .code-block .function { color: #60a5fa; }
+        .code-block .string { color: #4ade80; }
+        .code-block .comment { color: #6b7280; }
+        .code-block .number { color: #f97316; }
+        
+        strong {
+            color: #f97316;
+            font-weight: 600;
+        }
+        
+        .section-content {
+            flex-grow: 1;
+            margin-top: 8mm;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 9pt;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(59, 130, 246, 0.2));
+            color: #ffffff;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 9pt;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(226, 232, 240, 0.85);
+        }
+        
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .metric-card {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin: 6px 4px;
+            text-align: center;
+        }
+        
+        .metric-card .value {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #22c55e;
+        }
+        
+        .metric-card .label {
+            font-size: 8pt;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+        
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 10pt;
+        }
+        
+        .toc-item:hover {
+            background: rgba(249, 115, 22, 0.05);
+        }
+        
+        .toc-item .num {
+            color: #f97316;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .toc-item .page-num {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        @media screen {
+            .page {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .page:hover {
+                transform: translateY(-3px);
+                box-shadow: 
+                    0 35px 100px rgba(0, 0, 0, 0.7),
+                    0 0 2px rgba(249, 115, 22, 0.5);
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                background: white;
+                border-radius: 0;
+            }
+            .cover-page {
+                background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            }
+            .content-page {
+                background: white;
+            }
+            h1, h2, h3, p, li, td {
+                color: #1e293b !important;
+            }
+            strong {
+                color: #c2410c !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="page cover-page">
+    <div class="cover-decoration"></div>
+    <div class="cover-decoration-2"></div>
+    <div class="cover-content">
+        <div class="tech-badge">
+            <span class="pytorch">PyTorch</span>
+            <span class="onnx">ONNX</span>
+            <span class="tflite">TensorFlow Lite</span>
+        </div>
+        
+        <h1>Model Conversion Pipeline:<br>PyTorch → ONNX → TensorFlow Lite int8</h1>
+        
+        <div class="pipeline-visual">
+            <span class="framework pytorch-box">PyTorch</span>
+            <span class="arrow">→</span>
+            <span class="framework onnx-box">ONNX</span>
+            <span class="arrow">→</span>
+            <span class="framework tflite-box">TFLite int8</span>
+        </div>
+        
+        <div class="subtitle">Technical Report on Deep Learning Model Optimization and Deployment for Mobile and Embedded Devices</div>
+        
+        <div class="students-box">
+            <h3>Prepared by | إعداد</h3>
+            <div class="student-name">عبد العزيز عبد الرحمن</div>
+            <div class="student-name">عكرمة احمد نامق</div>
+            <div class="student-name">مصطفى خالد يحيى</div>
+        </div>
+        
+        <div class="date">December 2025</div>
+    </div>
+</div>
+
+<!-- Page 2: Executive Summary & Table of Contents -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>Executive Summary</h1>
+        
+        <p>This comprehensive report explores the complete pipeline for converting deep learning models from PyTorch to TensorFlow Lite with int8 quantization. The conversion process involves multiple intermediate formats and optimization techniques that enable deployment of sophisticated neural networks on resource-constrained mobile and embedded devices. Through the ONNX intermediate representation, we bridge the gap between different deep learning frameworks while maintaining model accuracy and significantly reducing computational requirements.</p>
+        
+        <p>The int8 quantization process reduces model size by approximately 75% and accelerates inference speed by 2-4x on mobile hardware, making it essential for real-world deployment scenarios. This report provides detailed technical analysis, implementation guidelines, and performance benchmarks for this critical conversion pipeline.</p>
+        
+        <div style="display: flex; justify-content: center; gap: 15px; margin: 20px 0;">
+            <div class="metric-card">
+                <div class="value">~75%</div>
+                <div class="label">Size Reduction</div>
+            </div>
+            <div class="metric-card">
+                <div class="value">2-4x</div>
+                <div class="label">Speed Improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="value">&lt;2%</div>
+                <div class="label">Accuracy Loss</div>
+            </div>
+        </div>
+        
+        <h1 style="margin-top: 25px;">Table of Contents</h1>
+        
+        <div class="toc-item"><span><span class="num">1.</span> Introduction</span><span class="page-num">3</span></div>
+        <div class="toc-item"><span><span class="num">2.</span> PyTorch Framework Overview</span><span class="page-num">4</span></div>
+        <div class="toc-item"><span><span class="num">3.</span> ONNX Intermediate Representation</span><span class="page-num">5</span></div>
+        <div class="toc-item"><span><span class="num">4.</span> TensorFlow Lite Architecture</span><span class="page-num">6</span></div>
+        <div class="toc-item"><span><span class="num">5.</span> Int8 Quantization Theory</span><span class="page-num">7</span></div>
+        <div class="toc-item"><span><span class="num">6.</span> Conversion Pipeline Implementation</span><span class="page-num">8-9</span></div>
+        <div class="toc-item"><span><span class="num">7.</span> Quantization Techniques</span><span class="page-num">10</span></div>
+        <div class="toc-item"><span><span class="num">8.</span> Performance Analysis</span><span class="page-num">11</span></div>
+        <div class="toc-item"><span><span class="num">9.</span> Common Challenges and Solutions</span><span class="page-num">12</span></div>
+        <div class="toc-item"><span><span class="num">10.</span> Best Practices & Case Studies</span><span class="page-num">13</span></div>
+        <div class="toc-item"><span><span class="num">11.</span> Conclusion & References</span><span class="page-num">14</span></div>
+    </div>
+    <div class="page-number">2</div>
+</div>
+
+<!-- Page 3: Introduction -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>1. Introduction</h1>
+        
+        <h2>1.1 Background</h2>
+        <p>Deep learning models have achieved remarkable success across various domains including computer vision, natural language processing, and speech recognition. However, deploying these models on mobile and edge devices presents significant challenges due to computational constraints, memory limitations, and power consumption requirements. The conversion pipeline from PyTorch to TensorFlow Lite with int8 quantization addresses these challenges by enabling efficient model deployment without substantial accuracy loss.</p>
+        
+        <h2>1.2 Motivation</h2>
+        <p>PyTorch has become one of the most popular frameworks for research and development due to its dynamic computation graph and intuitive API. However, TensorFlow Lite dominates the mobile deployment landscape with superior optimization for ARM processors and extensive hardware acceleration support. The ONNX format serves as a universal bridge between these ecosystems, enabling developers to leverage the strengths of both frameworks.</p>
+        
+        <div class="highlight-box">
+            <p><strong>Key Insight:</strong> The combination of PyTorch's development flexibility, ONNX's interoperability, and TensorFlow Lite's deployment efficiency creates an optimal workflow for taking models from research to production on mobile devices.</p>
+        </div>
+        
+        <h2>1.3 Report Objectives</h2>
+        <p>This report aims to provide a comprehensive understanding of the conversion pipeline, including:</p>
+        <ul>
+            <li>Theoretical foundations of each framework and format</li>
+            <li>Practical implementation strategies with code examples</li>
+            <li>Optimization techniques for maximum performance</li>
+            <li>Performance considerations and benchmarking methods</li>
+            <li>Common challenges and their solutions</li>
+        </ul>
+        
+        <p>We examine each stage of the conversion process and provide actionable insights for practitioners implementing this pipeline in production environments. The goal is to enable developers to successfully deploy PyTorch models on resource-constrained devices while maintaining acceptable accuracy levels.</p>
+    </div>
+    <div class="page-number">3</div>
+</div>
+
+<!-- Page 4: PyTorch Framework Overview -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>2. PyTorch Framework Overview</h1>
+        
+        <h2>2.1 PyTorch Architecture</h2>
+        <p>PyTorch is an open-source machine learning library developed by Facebook's AI Research lab. It provides a flexible platform for building and training neural networks through its dynamic computational graph approach. The framework consists of several key components:</p>
+        
+        <p><strong>Tensor Operations:</strong> PyTorch tensors are multi-dimensional arrays similar to NumPy arrays but with GPU acceleration support. They form the fundamental data structure for all operations in PyTorch.</p>
+        
+        <p><strong>Autograd System:</strong> The automatic differentiation engine tracks all operations on tensors and automatically computes gradients during backpropagation. This dynamic approach allows for flexible model architectures and easy debugging.</p>
+        
+        <p><strong>Neural Network Modules:</strong> The torch.nn package provides high-level abstractions for building neural networks, including pre-built layers, loss functions, and optimization algorithms.</p>
+        
+        <h2>2.2 Model Definition in PyTorch</h2>
+        <p>PyTorch models are typically defined as Python classes inheriting from torch.nn.Module. Each model consists of layers defined in the constructor and a forward method specifying the computation flow:</p>
+        
+        <div class="code-block">
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+
+<span class="keyword">class</span> <span class="function">YourModel</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        <span class="function">super</span>().__init__()
+        self.conv1 = nn.Conv2d(<span class="number">3</span>, <span class="number">64</span>, <span class="number">3</span>)
+        self.relu = nn.ReLU()
+        
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="keyword">return</span> self.relu(self.conv1(x))
+        </div>
+        
+        <h2>2.3 Training and Inference</h2>
+        <p>Training in PyTorch follows a straightforward loop pattern: forward pass, loss computation, backward pass, and parameter updates. The framework provides extensive support for distributed training, mixed precision, and various optimization algorithms.</p>
+        
+        <p>For inference, PyTorch offers torch.jit for model tracing and scripting, creating optimized representations suitable for production deployment. However, for mobile deployment, conversion to TensorFlow Lite through ONNX provides superior performance and hardware support.</p>
+    </div>
+    <div class="page-number">4</div>
+</div>
+
+<!-- Page 5: ONNX Intermediate Representation -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>3. ONNX Intermediate Representation</h1>
+        
+        <h2>3.1 ONNX Overview</h2>
+        <p>Open Neural Network Exchange (ONNX) is an open-source format for representing machine learning models. Developed collaboratively by Microsoft, Facebook, and other organizations, ONNX provides a standardized representation that enables interoperability between different deep learning frameworks.</p>
+        
+        <p>The ONNX specification defines a common set of operators and a standard data format, allowing models trained in one framework to be deployed in another. This framework-agnostic approach has become the de facto standard for model exchange in the industry.</p>
+        
+        <h2>3.2 ONNX Graph Structure</h2>
+        <p>An ONNX model is represented as a computational graph consisting of nodes and edges. Each node represents an operator, while edges represent tensors flowing between operators:</p>
+        
+        <ul>
+            <li><strong>Inputs and Outputs:</strong> Clearly defined model inputs and outputs with specified shapes and data types</li>
+            <li><strong>Operators:</strong> Standardized operations covering common neural network layers and mathematical functions</li>
+            <li><strong>Initializers:</strong> Model parameters such as weights and biases stored as constant tensors</li>
+            <li><strong>Metadata:</strong> Additional information about the model including version, producer, and custom attributes</li>
+        </ul>
+        
+        <h2>3.3 PyTorch to ONNX Export</h2>
+        <p>PyTorch provides native support for ONNX export through the torch.onnx.export function. The export process involves tracing the model with sample inputs to capture the computational graph:</p>
+        
+        <div class="code-block">
+torch.onnx.<span class="function">export</span>(
+    model,
+    dummy_input,
+    <span class="string">"model.onnx"</span>,
+    export_params=<span class="keyword">True</span>,
+    opset_version=<span class="number">13</span>,
+    do_constant_folding=<span class="keyword">True</span>,
+    input_names=[<span class="string">'input'</span>],
+    output_names=[<span class="string">'output'</span>],
+    dynamic_axes={<span class="string">'input'</span>: {<span class="number">0</span>: <span class="string">'batch_size'</span>}}
+)
+        </div>
+        
+        <h2>3.4 ONNX Optimization</h2>
+        <p>The ONNX ecosystem includes optimization tools that improve model performance: constant folding, operator fusion, dead code elimination, and layout transformations.</p>
+    </div>
+    <div class="page-number">5</div>
+</div>
+
+<!-- Page 6: TensorFlow Lite Architecture -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>4. TensorFlow Lite Architecture</h1>
+        
+        <h2>4.1 TensorFlow Lite Design Principles</h2>
+        <p>TensorFlow Lite is Google's solution for deploying machine learning models on mobile, embedded, and IoT devices. Designed with efficiency as the primary goal, TFLite provides a lightweight runtime optimized for constrained environments:</p>
+        
+        <ul>
+            <li><strong>Small Binary Size:</strong> The core interpreter has a minimal footprint, typically under 1MB when properly configured</li>
+            <li><strong>Low Latency:</strong> Optimized kernels and hardware acceleration enable real-time inference on mobile devices</li>
+            <li><strong>Hardware Acceleration:</strong> Support for GPU, DSP, and NPU acceleration through delegates</li>
+            <li><strong>Cross-Platform Support:</strong> Unified API across Android, iOS, Linux, and microcontrollers</li>
+        </ul>
+        
+        <h2>4.2 TFLite Model Format</h2>
+        <p>TensorFlow Lite models use the FlatBuffers serialization format, which allows efficient parsing without unpacking the entire model into memory. The FlatBuffers format provides:</p>
+        
+        <ul>
+            <li>Zero-copy deserialization for faster loading</li>
+            <li>Compact representation reducing storage requirements</li>
+            <li>Efficient random access to model components</li>
+            <li>Forward and backward compatibility</li>
+        </ul>
+        
+        <h2>4.3 Hardware Acceleration</h2>
+        <p>TFLite provides several acceleration options through its delegate system:</p>
+        
+        <table>
+            <tr>
+                <th>Delegate</th>
+                <th>Platform</th>
+                <th>Use Case</th>
+            </tr>
+            <tr>
+                <td>GPU Delegate</td>
+                <td>Android/iOS</td>
+                <td>Parallel computation for conv layers</td>
+            </tr>
+            <tr>
+                <td>NNAPI Delegate</td>
+                <td>Android</td>
+                <td>Hardware accelerators access</td>
+            </tr>
+            <tr>
+                <td>Core ML Delegate</td>
+                <td>iOS</td>
+                <td>Apple Neural Engine integration</td>
+            </tr>
+            <tr>
+                <td>Hexagon Delegate</td>
+                <td>Qualcomm</td>
+                <td>Power-efficient DSP computation</td>
+            </tr>
+        </table>
+    </div>
+    <div class="page-number">6</div>
+</div>
+
+<!-- Page 7: Int8 Quantization Theory -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>5. Int8 Quantization Theory</h1>
+        
+        <h2>5.1 Quantization Fundamentals</h2>
+        <p>Quantization is the process of mapping continuous or high-precision values to a discrete set of lower-precision values. In neural networks, quantization typically refers to converting 32-bit floating-point weights and activations to 8-bit integers. This transformation provides several benefits:</p>
+        
+        <ul>
+            <li><strong>Reduced Memory Footprint:</strong> Int8 values consume one-quarter the space of float32 values</li>
+            <li><strong>Faster Computation:</strong> Integer arithmetic operations execute significantly faster than floating-point operations</li>
+            <li><strong>Lower Power Consumption:</strong> Integer operations consume less energy</li>
+            <li><strong>Improved Cache Utilization:</strong> Smaller model size allows more parameters to fit in cache</li>
+        </ul>
+        
+        <h2>5.2 Quantization Mathematics</h2>
+        <p>The quantization process involves mapping floating-point values to integers using a linear transformation:</p>
+        
+        <div class="code-block">
+<span class="comment"># Quantization</span>
+quantized_value = <span class="function">round</span>(float_value / scale) + zero_point
+
+<span class="comment"># Dequantization</span>
+float_value = (quantized_value - zero_point) * scale
+        </div>
+        
+        <h2>5.3 Symmetric vs Asymmetric Quantization</h2>
+        <p><strong>Symmetric Quantization:</strong> Uses zero_point = 0, simplifying computations but potentially wasting representation space if the value distribution is asymmetric. Primarily used for weights.</p>
+        <p><strong>Asymmetric Quantization:</strong> Allows non-zero zero_point, providing better representation for asymmetric distributions. Typically used for activations.</p>
+        
+        <h2>5.4 Per-Tensor vs Per-Channel Quantization</h2>
+        <p><strong>Per-Tensor Quantization:</strong> Uses a single scale and zero_point for the entire tensor. Simpler but may sacrifice accuracy for tensors with varying ranges.</p>
+        <p><strong>Per-Channel Quantization:</strong> Uses different scale and zero_point for each output channel in convolutional layers, preserving accuracy by adapting to the specific range of each channel.</p>
+        
+        <div class="highlight-box">
+            <p><strong>Best Practice:</strong> Use per-channel quantization for weights in convolutional layers and per-tensor asymmetric quantization for activations to achieve optimal accuracy.</p>
+        </div>
+    </div>
+    <div class="page-number">7</div>
+</div>
+
+<!-- Page 8: Conversion Pipeline Implementation - Part 1 -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>6. Conversion Pipeline Implementation</h1>
+        
+        <h2>6.1 Pipeline Overview</h2>
+        <p>The complete conversion pipeline consists of four major stages:</p>
+        <ol>
+            <li>PyTorch model preparation and validation</li>
+            <li>Export to ONNX format</li>
+            <li>ONNX to TensorFlow conversion</li>
+            <li>TensorFlow to TensorFlow Lite with int8 quantization</li>
+        </ol>
+        
+        <h2>6.2 Stage 1: PyTorch Model Preparation</h2>
+        <p>Before export, the PyTorch model must be properly prepared:</p>
+        
+        <div class="code-block">
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+
+<span class="comment"># Load and prepare model</span>
+model = YourModel()
+model.<span class="function">eval</span>()  <span class="comment"># Set to evaluation mode</span>
+model.<span class="function">load_state_dict</span>(torch.<span class="function">load</span>(<span class="string">'model.pth'</span>))
+
+<span class="comment"># Prepare dummy input</span>
+dummy_input = torch.<span class="function">randn</span>(<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>)
+        </div>
+        
+        <h2>6.3 Stage 2: PyTorch to ONNX Export</h2>
+        <p>The export process captures the computational graph with key parameters:</p>
+        
+        <div class="code-block">
+torch.onnx.<span class="function">export</span>(
+    model,
+    dummy_input,
+    <span class="string">"model.onnx"</span>,
+    export_params=<span class="keyword">True</span>,
+    opset_version=<span class="number">13</span>,
+    do_constant_folding=<span class="keyword">True</span>,
+    input_names=[<span class="string">'input'</span>],
+    output_names=[<span class="string">'output'</span>],
+    dynamic_axes={
+        <span class="string">'input'</span>: {<span class="number">0</span>: <span class="string">'batch_size'</span>},
+        <span class="string">'output'</span>: {<span class="number">0</span>: <span class="string">'batch_size'</span>}
+    }
+)
+        </div>
+        
+        <p><strong>Key Parameters:</strong></p>
+        <ul>
+            <li><strong>opset_version:</strong> Determines available operators (recommend 13+)</li>
+            <li><strong>do_constant_folding:</strong> Enables compile-time optimization</li>
+            <li><strong>dynamic_axes:</strong> Specifies variable dimensions for flexibility</li>
+        </ul>
+    </div>
+    <div class="page-number">8</div>
+</div>
+
+<!-- Page 9: Conversion Pipeline Implementation - Part 2 -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h2>6.4 Stage 3: ONNX to TensorFlow Conversion</h2>
+        <p>Using the onnx-tf library for conversion to TensorFlow SavedModel format:</p>
+        
+        <div class="code-block">
+<span class="keyword">import</span> onnx
+<span class="keyword">from</span> onnx_tf.backend <span class="keyword">import</span> prepare
+
+<span class="comment"># Load ONNX model</span>
+onnx_model = onnx.<span class="function">load</span>(<span class="string">"model.onnx"</span>)
+
+<span class="comment"># Convert to TensorFlow</span>
+tf_rep = <span class="function">prepare</span>(onnx_model)
+tf_rep.<span class="function">export_graph</span>(<span class="string">"model_tf"</span>)
+        </div>
+        
+        <h2>6.5 Stage 4: TensorFlow to TFLite with Int8 Quantization</h2>
+        <p>The final conversion applies quantization with a representative dataset for calibration:</p>
+        
+        <div class="code-block">
+<span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+converter = tf.lite.TFLiteConverter.<span class="function">from_saved_model</span>(<span class="string">"model_tf"</span>)
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.target_spec.supported_types = [tf.int8]
+
+<span class="comment"># Representative dataset for calibration</span>
+<span class="keyword">def</span> <span class="function">representative_dataset</span>():
+    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(<span class="number">100</span>):
+        <span class="keyword">yield</span> [np.<span class="function">random.randn</span>(<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>).<span class="function">astype</span>(np.float32)]
+
+converter.representative_dataset = representative_dataset
+converter.inference_input_type = tf.uint8
+converter.inference_output_type = tf.uint8
+
+<span class="comment"># Convert and save</span>
+tflite_model = converter.<span class="function">convert</span>()
+<span class="keyword">with</span> <span class="function">open</span>(<span class="string">'model_int8.tflite'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:
+    f.<span class="function">write</span>(tflite_model)
+        </div>
+        
+        <div class="highlight-box">
+            <p><strong>Important:</strong> The representative dataset should be diverse and representative of real-world inputs, typically containing 100-500 samples for accurate calibration.</p>
+        </div>
+    </div>
+    <div class="page-number">9</div>
+</div>
+
+<!-- Page 10: Quantization Techniques -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>7. Quantization Techniques</h1>
+        
+        <h2>7.1 Calibration Process</h2>
+        <p>Post-training quantization requires a calibration dataset to determine optimal scale and zero_point values. The calibration process:</p>
+        <ol>
+            <li>Runs the model on representative inputs</li>
+            <li>Records the range of values for each activation tensor</li>
+            <li>Computes scale and zero_point to minimize quantization error</li>
+            <li>Validates the quantized model's accuracy</li>
+        </ol>
+        
+        <h2>7.2 Quantization Types Comparison</h2>
+        
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Size Reduction</th>
+                <th>Speed Gain</th>
+                <th>Accuracy Impact</th>
+            </tr>
+            <tr>
+                <td>Dynamic Range</td>
+                <td>~75%</td>
+                <td>Moderate</td>
+                <td>Minimal</td>
+            </tr>
+            <tr>
+                <td>Full Integer (int8)</td>
+                <td>~75%</td>
+                <td>Maximum</td>
+                <td>Low-Moderate</td>
+            </tr>
+            <tr>
+                <td>Float16</td>
+                <td>~50%</td>
+                <td>Moderate</td>
+                <td>Negligible</td>
+            </tr>
+        </table>
+        
+        <h2>7.3 Post-Training vs Quantization-Aware Training</h2>
+        <p><strong>Post-Training Quantization (PTQ):</strong> Quantizes a pre-trained model without retraining. Fast and simple but may result in accuracy degradation, especially for smaller models.</p>
+        
+        <p><strong>Quantization-Aware Training (QAT):</strong> Simulates quantization during training, allowing the model to learn parameters robust to quantization noise. Provides better accuracy but requires access to training data and computational resources.</p>
+        
+        <div class="highlight-box">
+            <p><strong>Recommendation:</strong> Start with PTQ for quick evaluation. If accuracy loss is unacceptable (>2%), consider QAT or selective float16 for critical layers.</p>
+        </div>
+        
+        <h2>7.4 Dynamic Range Quantization</h2>
+        <p>The simplest form of quantization that converts only weights to int8 while keeping activations as float. Provides moderate size reduction with minimal accuracy impact but limited speed improvement.</p>
+    </div>
+    <div class="page-number">10</div>
+</div>
+
+<!-- Page 11: Performance Analysis -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>8. Performance Analysis</h1>
+        
+        <h2>8.1 Model Size Comparison</h2>
+        <p>Typical model size reductions achieved through quantization:</p>
+        
+        <table>
+            <tr>
+                <th>Format</th>
+                <th>Size (Relative)</th>
+                <th>Example (50MB Base)</th>
+            </tr>
+            <tr>
+                <td>Float32 (baseline)</td>
+                <td>100%</td>
+                <td>50 MB</td>
+            </tr>
+            <tr>
+                <td>Float16</td>
+                <td>~50%</td>
+                <td>25 MB</td>
+            </tr>
+            <tr>
+                <td>Int8</td>
+                <td>~25%</td>
+                <td>12-15 MB</td>
+            </tr>
+        </table>
+        
+        <h2>8.2 Inference Speed Benchmarks</h2>
+        <p>Speed improvements depend on hardware and model architecture. Representative benchmarks on mid-range mobile devices:</p>
+        
+        <ul>
+            <li><strong>CPU inference:</strong> 2-4x faster with int8</li>
+            <li><strong>GPU inference:</strong> 1.5-2x faster with int8</li>
+            <li><strong>NPU acceleration:</strong> 3-5x faster with int8</li>
+        </ul>
+        
+        <p>Convolutional models typically see greater speedups than transformer-based architectures.</p>
+        
+        <h2>8.3 Accuracy Impact</h2>
+        <p>Well-executed int8 quantization typically results in:</p>
+        <ul>
+            <li>Top-1 accuracy drop: 0.5-2%</li>
+            <li>Top-5 accuracy drop: 0.1-0.5%</li>
+        </ul>
+        <p>Quantization-aware training can recover most of this accuracy loss.</p>
+        
+        <h2>8.4 Power Consumption</h2>
+        <p>Int8 models consume 30-50% less power during inference compared to float32 models, significantly extending battery life in mobile applications.</p>
+        
+        <div style="display: flex; justify-content: center; gap: 15px; margin: 20px 0;">
+            <div class="metric-card">
+                <div class="value">30-50%</div>
+                <div class="label">Power Savings</div>
+            </div>
+            <div class="metric-card">
+                <div class="value">2-4x</div>
+                <div class="label">CPU Speedup</div>
+            </div>
+        </div>
+    </div>
+    <div class="page-number">11</div>
+</div>
+
+<!-- Page 12: Common Challenges and Solutions -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>9. Common Challenges and Solutions</h1>
+        
+        <h2>9.1 Operator Compatibility Issues</h2>
+        <p><strong>Challenge:</strong> Not all PyTorch operators have direct ONNX equivalents.</p>
+        <p><strong>Solution:</strong> Replace unsupported operations with compatible alternatives or implement custom ONNX operators. Check operator support using onnx-simplifier.</p>
+        
+        <h2>9.2 Dynamic Shape Handling</h2>
+        <p><strong>Challenge:</strong> Dynamic input shapes can complicate conversion.</p>
+        <p><strong>Solution:</strong> Use dynamic_axes in ONNX export and test with various input dimensions. Consider fixed shapes for mobile deployment.</p>
+        
+        <h2>9.3 Accuracy Degradation</h2>
+        <p><strong>Challenge:</strong> Excessive accuracy loss after quantization.</p>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+            <li>Use per-channel quantization for convolutional layers</li>
+            <li>Increase calibration dataset size and diversity</li>
+            <li>Consider quantization-aware training</li>
+            <li>Selectively keep critical layers in float16</li>
+        </ul>
+        
+        <h2>9.4 Batch Normalization Folding</h2>
+        <p><strong>Challenge:</strong> Batch normalization can interfere with quantization.</p>
+        <p><strong>Solution:</strong> Fold batch normalization into preceding convolutional layers before quantization using torch.quantization.fuse_modules().</p>
+        
+        <h2>9.5 Custom Layer Support</h2>
+        <p><strong>Challenge:</strong> Custom PyTorch layers may not convert properly.</p>
+        <p><strong>Solution:</strong> Implement equivalent operations using standard operators or use TFLite custom operators for unsupported functionality.</p>
+        
+        <div class="highlight-box">
+            <p><strong>Pro Tip:</strong> Always validate converted models at each stage by comparing outputs with identical inputs across PyTorch, ONNX, and TFLite versions.</p>
+        </div>
+    </div>
+    <div class="page-number">12</div>
+</div>
+
+<!-- Page 13: Best Practices & Case Studies -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>10. Best Practices & Case Studies</h1>
+        
+        <h2>10.1 Development Workflow</h2>
+        <ol>
+            <li>Train and validate model in PyTorch</li>
+            <li>Test ONNX export with validation data</li>
+            <li>Verify TensorFlow conversion accuracy</li>
+            <li>Evaluate quantized model performance</li>
+            <li>Iterate on problematic layers if needed</li>
+        </ol>
+        
+        <h2>10.2 Optimization Tips</h2>
+        <ul>
+            <li>Apply ONNX optimization passes before TF conversion</li>
+            <li>Use per-channel quantization for convolutional layers</li>
+            <li>Experiment with different opset versions</li>
+            <li>Profile performance on target devices early</li>
+        </ul>
+        
+        <h2>10.3 Case Study: Image Classification (ResNet-50)</h2>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Original</th>
+                <th>Int8 TFLite</th>
+            </tr>
+            <tr>
+                <td>Model Size</td>
+                <td>98 MB</td>
+                <td>25 MB</td>
+            </tr>
+            <tr>
+                <td>Accuracy Drop</td>
+                <td>-</td>
+                <td>1.2%</td>
+            </tr>
+            <tr>
+                <td>Inference Speed</td>
+                <td>1x</td>
+                <td>3.1x faster</td>
+            </tr>
+        </table>
+        <p><strong>Key Learning:</strong> Per-channel quantization was essential for preserving accuracy in early layers.</p>
+        
+        <h2>10.4 Case Study: Object Detection (YOLOv5)</h2>
+        <ul>
+            <li>Model size reduction: 72%</li>
+            <li>FPS improvement: 2.4x</li>
+            <li>mAP decrease: 2.3%</li>
+        </ul>
+        <p><strong>Challenge:</strong> Non-maximum suppression required custom implementation for TFLite.</p>
+    </div>
+    <div class="page-number">13</div>
+</div>
+
+<!-- Page 14: Conclusion & References -->
+<div class="page content-page">
+    <div class="page-header">
+        <span>Model Conversion Pipeline: PyTorch → ONNX → TensorFlow Lite int8</span>
+        <span>Technical Report</span>
+    </div>
+    <div class="section-content">
+        <h1>11. Conclusion</h1>
+        
+        <h2>11.1 Summary</h2>
+        <p>The PyTorch → ONNX → TensorFlow Lite int8 conversion pipeline enables efficient deployment of sophisticated deep learning models on resource-constrained devices. Through careful attention to each stage and proper quantization techniques, we can achieve substantial improvements in model size and inference speed while maintaining acceptable accuracy.</p>
+        
+        <h2>11.2 Key Takeaways</h2>
+        <ul>
+            <li>Int8 quantization reduces model size by ~75% and accelerates inference 2-4x</li>
+            <li>ONNX provides essential interoperability between frameworks</li>
+            <li>Proper calibration is critical for maintaining accuracy</li>
+            <li>Per-channel quantization preserves accuracy better than per-tensor</li>
+            <li>Hardware acceleration delegates can provide additional speedups</li>
+        </ul>
+        
+        <h2>11.3 Future Directions</h2>
+        <p>Emerging trends in model optimization include neural architecture search for quantization-friendly models, mixed-precision quantization strategies, hardware-specific optimizations, and AutoML for optimal conversion parameters.</p>
+        
+        <h1 style="margin-top: 25px;">References</h1>
+        
+        <p style="font-size: 9pt; margin-bottom: 8px;">1. PyTorch Documentation: https://pytorch.org/docs/</p>
+        <p style="font-size: 9pt; margin-bottom: 8px;">2. ONNX Specification: https://onnx.ai/</p>
+        <p style="font-size: 9pt; margin-bottom: 8px;">3. TensorFlow Lite Guide: https://www.tensorflow.org/lite/</p>
+        <p style="font-size: 9pt; margin-bottom: 8px;">4. Jacob, B., et al. "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference." CVPR 2018.</p>
+        <p style="font-size: 9pt; margin-bottom: 8px;">5. ONNX-TensorFlow Conversion Tools Documentation</p>
+        <p style="font-size: 9pt; margin-bottom: 8px;">6. Post-Training Quantization Best Practices - TensorFlow</p>
+    </div>
+    <div class="page-number">14</div>
+</div>
+
+</body>
+</html>
