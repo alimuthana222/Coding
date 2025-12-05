@@ -29,8 +29,8 @@
         
         .page {
             width: 210mm;
-            min-height: 297mm;
-            padding: 22mm 20mm;
+            height: 297mm;
+            padding: 18mm 18mm;
             margin: 20px auto;
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
             border-radius: 16px;
@@ -39,6 +39,7 @@
                 0 0 1px rgba(249, 115, 22, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
             page-break-after: always;
+            page-break-inside: avoid;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -71,7 +72,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 25mm 20mm;
+            padding: 20mm 18mm;
         }
         
         .cover-decoration {
@@ -105,16 +106,16 @@
         
         .tech-badge {
             display: inline-flex;
-            gap: 8px;
+            gap: 6px;
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(59, 130, 246, 0.2));
             border: 1px solid rgba(249, 115, 22, 0.4);
-            padding: 10px 28px;
+            padding: 8px 20px;
             border-radius: 50px;
-            font-size: 10pt;
+            font-size: 9pt;
             font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 20mm;
+            margin-bottom: 15mm;
             backdrop-filter: blur(10px);
         }
         
@@ -133,8 +134,8 @@
         
         .cover-page h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 30pt;
-            margin-bottom: 8mm;
+            font-size: 26pt;
+            margin-bottom: 6mm;
             font-weight: 800;
             line-height: 1.2;
             background: linear-gradient(135deg, #ffffff 0%, #f97316 40%, #22c55e 70%, #3b82f6 100%);
@@ -145,23 +146,23 @@
         
         .cover-page .pipeline-visual {
             font-family: 'Fira Code', monospace;
-            font-size: 14pt;
-            margin-bottom: 12mm;
+            font-size: 12pt;
+            margin-bottom: 10mm;
             color: rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .pipeline-visual .arrow {
             color: #facc15;
-            font-size: 16pt;
+            font-size: 14pt;
         }
         
         .pipeline-visual .framework {
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-weight: 500;
         }
         
@@ -184,31 +185,31 @@
         }
         
         .cover-page .subtitle {
-            font-size: 13pt;
-            margin-bottom: 18mm;
+            font-size: 11pt;
+            margin-bottom: 12mm;
             font-weight: 300;
             color: rgba(255, 255, 255, 0.7);
-            max-width: 450px;
+            max-width: 400px;
             margin-left: auto;
             margin-right: auto;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         .students-box {
             background: rgba(255, 255, 255, 0.03);
-            padding: 25px 45px;
-            border-radius: 16px;
+            padding: 18px 35px;
+            border-radius: 14px;
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 15mm;
+            margin-bottom: 10mm;
             box-shadow: 
                 0 8px 32px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
         
         .students-box h3 {
-            font-size: 11pt;
-            margin-bottom: 15px;
+            font-size: 10pt;
+            margin-bottom: 10px;
             font-weight: 600;
             color: #f97316;
             letter-spacing: 1px;
@@ -219,25 +220,25 @@
         }
         
         .student-name {
-            font-size: 13pt;
-            margin: 10px 0;
+            font-size: 11pt;
+            margin: 8px 0;
             font-weight: 400;
             color: rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             direction: rtl;
         }
         
         .student-name::before {
             content: '◆';
             color: #22c55e;
-            font-size: 8pt;
+            font-size: 7pt;
         }
         
         .date {
-            font-size: 12pt;
+            font-size: 11pt;
             color: rgba(255, 255, 255, 0.5);
             font-weight: 300;
         }
@@ -272,24 +273,24 @@
         
         .page-header {
             position: absolute;
-            top: 10mm;
-            left: 20mm;
-            right: 20mm;
-            font-size: 8pt;
+            top: 8mm;
+            left: 18mm;
+            right: 18mm;
+            font-size: 7pt;
             color: rgba(255, 255, 255, 0.3);
             font-weight: 400;
             display: flex;
             justify-content: space-between;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 20pt;
+            font-size: 16pt;
             color: #ffffff;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             font-weight: 700;
             position: relative;
             display: inline-block;
@@ -308,50 +309,50 @@
         
         h2 {
             font-family: 'Inter', sans-serif;
-            font-size: 14pt;
+            font-size: 11pt;
             color: #f97316;
-            margin-top: 22px;
-            margin-bottom: 12px;
+            margin-top: 14px;
+            margin-bottom: 8px;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         h2::before {
             content: '▸';
             color: #22c55e;
-            font-size: 12pt;
+            font-size: 10pt;
         }
         
         h3 {
-            font-size: 11pt;
+            font-size: 10pt;
             color: #3b82f6;
-            margin-top: 16px;
-            margin-bottom: 8px;
+            margin-top: 10px;
+            margin-bottom: 6px;
             font-weight: 600;
         }
         
         p {
             text-align: justify;
-            margin-bottom: 12px;
-            font-size: 10pt;
+            margin-bottom: 8px;
+            font-size: 9pt;
             color: rgba(226, 232, 240, 0.85);
-            line-height: 1.85;
+            line-height: 1.6;
         }
         
         ul, ol {
-            margin-left: 20px;
-            margin-bottom: 12px;
+            margin-left: 16px;
+            margin-bottom: 8px;
         }
         
         li {
-            margin-bottom: 8px;
-            font-size: 10pt;
+            margin-bottom: 4px;
+            font-size: 9pt;
             color: rgba(226, 232, 240, 0.85);
             position: relative;
-            padding-left: 5px;
-            line-height: 1.7;
+            padding-left: 4px;
+            line-height: 1.5;
         }
         
         li::marker {
@@ -360,10 +361,10 @@
         
         .highlight-box {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(34, 197, 94, 0.05));
-            padding: 16px 18px;
+            padding: 10px 14px;
             border-left: 3px solid;
             border-image: linear-gradient(180deg, #f97316, #22c55e) 1;
-            margin: 16px 0;
+            margin: 10px 0;
             border-radius: 0 12px 12px 0;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -371,20 +372,20 @@
         
         .highlight-box p {
             margin-bottom: 0;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
         
         .code-block {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin: 14px 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 10px 0;
             font-family: 'Fira Code', monospace;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             overflow-x: auto;
             color: #e2e8f0;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         .code-block .keyword { color: #c084fc; }
@@ -400,29 +401,30 @@
         
         .section-content {
             flex-grow: 1;
-            margin-top: 8mm;
+            margin-top: 6mm;
+            overflow: hidden;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 14px 0;
-            font-size: 9pt;
-            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 8pt;
+            border-radius: 8px;
             overflow: hidden;
         }
         
         th {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(59, 130, 246, 0.2));
             color: #ffffff;
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: 600;
-            font-size: 9pt;
+            font-size: 8pt;
         }
         
         td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             color: rgba(226, 232, 240, 0.85);
         }
@@ -435,30 +437,30 @@
             display: inline-block;
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
             border: 1px solid rgba(34, 197, 94, 0.3);
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin: 6px 4px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            margin: 4px 3px;
             text-align: center;
         }
         
         .metric-card .value {
-            font-size: 18pt;
+            font-size: 14pt;
             font-weight: 700;
             color: #22c55e;
         }
         
         .metric-card .label {
-            font-size: 8pt;
+            font-size: 7pt;
             color: rgba(255, 255, 255, 0.6);
-            margin-top: 4px;
+            margin-top: 2px;
         }
         
         .toc-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 5px 0;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-            font-size: 10pt;
+            font-size: 9pt;
         }
         
         .toc-item:hover {
