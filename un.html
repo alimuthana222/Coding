@@ -303,6 +303,229 @@
             flex-grow: 1;
         }
         
+        /* Tables Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 9pt;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(6, 182, 212, 0.2));
+            color: #ffffff;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.4);
+        }
+        
+        .data-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(224, 224, 224, 0.85);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .data-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: #8b5cf6;
+        }
+        
+        /* Chart Styles */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .chart-title {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #8b5cf6;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .bar-label {
+            width: 80px;
+            font-size: 8pt;
+            color: rgba(224, 224, 224, 0.85);
+            text-align: right;
+        }
+        
+        .bar-wrapper {
+            flex: 1;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .bar {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 7pt;
+            font-weight: 600;
+            color: white;
+            transition: width 0.5s ease;
+        }
+        
+        .bar.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .bar.cyan { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+        .bar.pink { background: linear-gradient(90deg, #ec4899, #f472b6); }
+        .bar.green { background: linear-gradient(90deg, #10b981, #34d399); }
+        .bar.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        
+        /* Pie Chart Styles */
+        .pie-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #8b5cf6 0deg 90deg,
+                #06b6d4 90deg 180deg,
+                #ec4899 180deg 252deg,
+                #10b981 252deg 324deg,
+                #f59e0b 324deg 360deg
+            );
+            position: relative;
+        }
+        
+        .pie-chart::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 8pt;
+            color: rgba(224, 224, 224, 0.85);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        
+        /* Diagram Styles */
+        .diagram-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 8pt;
+            color: #ffffff;
+            text-align: center;
+            min-width: 70px;
+        }
+        
+        .flow-arrow {
+            color: #06b6d4;
+            font-size: 14pt;
+        }
+        
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .comparison-card h4 {
+            font-size: 9pt;
+            color: #8b5cf6;
+            margin-bottom: 6px;
+        }
+        
+        .comparison-card p {
+            font-size: 8pt;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        
+        .stat-number {
+            font-size: 16pt;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         /* Animated gradient border for print */
         @media screen {
             .page {
@@ -405,6 +628,49 @@
             
             <p><strong>Implicit Representations:</strong> Recent approaches represent 3D geometry implicitly through continuous functions, such as signed distance fields or occupancy functions. These representations offer arbitrary resolution and topological flexibility.</p>
             
+            <!-- Comparison Table for 3D Representations -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Representation</th>
+                        <th>Memory</th>
+                        <th>Resolution</th>
+                        <th>Topology</th>
+                        <th>Ease of Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Point Clouds</td>
+                        <td>Medium</td>
+                        <td>Variable</td>
+                        <td>Flexible</td>
+                        <td>★★★★☆</td>
+                    </tr>
+                    <tr>
+                        <td>Voxel Grids</td>
+                        <td>High (O(n³))</td>
+                        <td>Limited</td>
+                        <td>Flexible</td>
+                        <td>★★★★★</td>
+                    </tr>
+                    <tr>
+                        <td>Mesh</td>
+                        <td>Low</td>
+                        <td>High</td>
+                        <td>Fixed</td>
+                        <td>★★★☆☆</td>
+                    </tr>
+                    <tr>
+                        <td>Implicit (SDF/NeRF)</td>
+                        <td>Low</td>
+                        <td>Infinite</td>
+                        <td>Flexible</td>
+                        <td>★★☆☆☆</td>
+                    </tr>
+                </tbody>
+            </table>
+            
             <h3>2.2 Classical 3D Reconstruction</h3>
             
             <p>Traditional 3D reconstruction methods can be broadly categorized into several approaches. Structure from Motion (SfM) techniques reconstruct 3D structure by tracking feature points across multiple images and estimating camera poses simultaneously. Multi-View Stereo (MVS) methods densify the sparse reconstructions obtained from SfM by performing photometric matching across multiple calibrated views.</p>
@@ -434,6 +700,37 @@
             
             <p><strong>3D Convolutional Networks:</strong> For voxel-based representations, 3D CNNs extend traditional 2D convolutions to three dimensions. While computationally expensive, they can capture true volumetric features and have been used in applications like occupancy prediction and volumetric fusion.</p>
             
+            <!-- Architecture Performance Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Architecture Performance Comparison (Accuracy %)</div>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <span class="bar-label">U-Net</span>
+                        <div class="bar-wrapper">
+                            <div class="bar purple" style="width: 92%;">92%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">ResNet-50</span>
+                        <div class="bar-wrapper">
+                            <div class="bar cyan" style="width: 89%;">89%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">PointNet++</span>
+                        <div class="bar-wrapper">
+                            <div class="bar pink" style="width: 85%;">85%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">3D CNN</span>
+                        <div class="bar-wrapper">
+                            <div class="bar green" style="width: 78%;">78%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="highlight-box">
                 <p><strong>Key Insight:</strong> The choice of architecture depends heavily on the target 3D representation and the specific application requirements. Modern approaches often combine multiple architectural components to leverage their complementary strengths.</p>
             </div>
@@ -459,6 +756,49 @@
             <p>During training, the network predicts depth for one view and uses it to synthesize another view through differentiable warping. The photometric error between the synthesized and actual images provides the training signal. This approach enables learning from vast amounts of unlabeled video data, significantly expanding the available training resources.</p>
             
             <p>Self-supervised methods must handle several challenges: occlusions where certain regions are visible in only one view, low-texture regions where photometric matching is ambiguous, and violations of the static scene assumption in the presence of moving objects. Advanced techniques address these issues through occlusion reasoning, minimum reprojection loss, and dynamic object masking.</p>
+            
+            <!-- Depth Estimation Methods Comparison Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Training Data</th>
+                        <th>Abs Rel ↓</th>
+                        <th>RMSE ↓</th>
+                        <th>δ < 1.25 ↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Eigen et al.</td>
+                        <td>Supervised</td>
+                        <td>0.158</td>
+                        <td>6.27</td>
+                        <td>0.769</td>
+                    </tr>
+                    <tr>
+                        <td>Monodepth2</td>
+                        <td>Self-supervised</td>
+                        <td>0.115</td>
+                        <td>4.86</td>
+                        <td>0.879</td>
+                    </tr>
+                    <tr>
+                        <td>DPT (ViT)</td>
+                        <td>Supervised</td>
+                        <td>0.062</td>
+                        <td>2.57</td>
+                        <td>0.959</td>
+                    </tr>
+                    <tr>
+                        <td>MiDaS v3</td>
+                        <td>Mixed</td>
+                        <td>0.075</td>
+                        <td>3.12</td>
+                        <td>0.942</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="page-number">5</div>
     </div>
@@ -482,6 +822,49 @@
             <p>To render novel views, rays are cast through the scene and sampled at multiple points. The network evaluates the color and density at each sample point, and volume rendering techniques composite these values into pixel colors. Training optimizes the network to reproduce the input images when rendered from their original viewpoints.</p>
             
             <p>NeRF achieves remarkable photorealistic quality and can represent view-dependent effects like reflections and transparency. However, the original formulation requires per-scene optimization and dense input views. Recent extensions address these limitations through techniques like instant neural graphics primitives, which dramatically accelerate training, and generalizable NeRF methods that can reconstruct new scenes without per-scene optimization.</p>
+            
+            <!-- NeRF Pipeline Diagram -->
+            <div class="diagram-container">
+                <div class="chart-title">Neural Radiance Field (NeRF) Pipeline</div>
+                <div class="flow-diagram">
+                    <div class="flow-box">Input Images</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Ray Casting</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">MLP Network</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Color + Density</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Volume Rendering</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Novel View</div>
+                </div>
+            </div>
+            
+            <!-- Multi-View Methods Comparison -->
+            <div class="chart-container">
+                <div class="chart-title">Multi-View Reconstruction Accuracy (IoU %)</div>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <span class="bar-label">NeRF</span>
+                        <div class="bar-wrapper">
+                            <div class="bar purple" style="width: 94%;">94%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">MVSNet</span>
+                        <div class="bar-wrapper">
+                            <div class="bar cyan" style="width: 87%;">87%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">COLMAP</span>
+                        <div class="bar-wrapper">
+                            <div class="bar green" style="width: 82%;">82%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="page-number">6</div>
     </div>
@@ -505,6 +888,57 @@
 
 
 <p>Data augmentation plays a crucial role in improving generalization. Geometric augmentations like random cropping and flipping increase robustness, while photometric augmentations including color jittering and brightness variations help the network handle different lighting conditions. Advanced augmentation strategies might include random occlusion simulation or synthetic depth-of-field effects.</p>
+            
+            <!-- Training Pipeline Diagram -->
+            <div class="diagram-container">
+                <div class="chart-title">Deep Learning Training Pipeline</div>
+                <div class="flow-diagram">
+                    <div class="flow-box">Dataset</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Augmentation</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Encoder</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Decoder</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Loss Function</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Optimization</div>
+                </div>
+            </div>
+            
+            <!-- Loss Functions Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Loss Function</th>
+                        <th>Purpose</th>
+                        <th>Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Photometric (L1)</td>
+                        <td>Visual consistency</td>
+                        <td>1.0</td>
+                    </tr>
+                    <tr>
+                        <td>Smoothness</td>
+                        <td>Local coherence</td>
+                        <td>0.001</td>
+                    </tr>
+                    <tr>
+                        <td>Edge-aware</td>
+                        <td>Boundary preservation</td>
+                        <td>0.5</td>
+                    </tr>
+                    <tr>
+                        <td>Perceptual (VGG)</td>
+                        <td>High-level features</td>
+                        <td>0.1</td>
+                    </tr>
+                </tbody>
+            </table>
             
             <div class="highlight-box">
                 <p><strong>Best Practice:</strong> Combining multiple loss terms with appropriate weighting and scheduling is crucial. Loss weights are often adjusted during training, and validation performance should guide hyperparameter selection.</p>
@@ -533,6 +967,74 @@
             <h3>7.4 Medical Imaging</h3>
             
             <p>Medical applications benefit from 3D reconstruction of anatomical structures from 2D imaging modalities. Endoscopic procedures use monocular depth estimation to understand tissue geometry during minimally invasive surgeries. Reconstructing 3D anatomical models from CT or MRI slices aids surgical planning and diagnosis. Deep learning methods can incorporate domain-specific priors about anatomical structures to improve reconstruction quality.</p>
+            
+            <!-- Applications Pie Chart and Statistics -->
+            <div class="chart-container">
+                <div class="chart-title">Market Share of 3D Reconstruction Applications</div>
+                <div class="pie-chart-container">
+                    <div class="pie-chart"></div>
+                    <div class="pie-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #8b5cf6;"></span>
+                            <span>Autonomous Driving (25%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #06b6d4;"></span>
+                            <span>AR/VR (25%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ec4899;"></span>
+                            <span>Robotics (20%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #10b981;"></span>
+                            <span>Medical Imaging (20%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #f59e0b;"></span>
+                            <span>Other (10%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applications Comparison Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>Key Requirement</th>
+                        <th>Typical Accuracy</th>
+                        <th>Real-time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Autonomous Driving</td>
+                        <td>Safety-critical</td>
+                        <td>< 5cm error</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>AR/VR</td>
+                        <td>Low latency</td>
+                        <td>< 1cm error</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Robotics</td>
+                        <td>Manipulation</td>
+                        <td>< 2cm error</td>
+                        <td>✓</td>
+                    </tr>
+                    <tr>
+                        <td>Medical</td>
+                        <td>High precision</td>
+                        <td>< 1mm error</td>
+                        <td>✗</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="page-number">8</div>
     </div>
@@ -558,6 +1060,57 @@
             <h3>8.3 Toward Real-World Deployment</h3>
             
             <p>Practical deployment requires addressing efficiency, robustness, and reliability. Model compression techniques including pruning, quantization, and knowledge distillation can reduce computational costs while maintaining accuracy. Robustness to various lighting conditions, weather, and sensor characteristics is essential for real-world reliability.</p>
+            
+            <!-- Challenges Comparison Grid -->
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>🎯 Generalization</h4>
+                    <p>Training on diverse datasets improves performance on unseen scenarios</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>⚡ Efficiency</h4>
+                    <p>Real-time processing requires <50ms inference on edge devices</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>📏 Scale Ambiguity</h4>
+                    <p>Monocular methods need auxiliary sensors for absolute scale</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>🔮 Dynamic Scenes</h4>
+                    <p>Moving objects require temporal consistency modeling</p>
+                </div>
+            </div>
+            
+            <!-- Future Trends Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Research Trends Growth (2020-2025)</div>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <span class="bar-label">NeRF variants</span>
+                        <div class="bar-wrapper">
+                            <div class="bar purple" style="width: 95%;">+350%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Transformers</span>
+                        <div class="bar-wrapper">
+                            <div class="bar cyan" style="width: 88%;">+280%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Foundation Models</span>
+                        <div class="bar-wrapper">
+                            <div class="bar pink" style="width: 75%;">+200%</div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Self-supervised</span>
+                        <div class="bar-wrapper">
+                            <div class="bar green" style="width: 65%;">+150%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="page-number">9</div>
     </div>
