@@ -11,6 +11,7 @@ class EventsCubit extends Cubit<EventsState> {
 
   EventsCubit() : super(const EventsState()) {
     loadEvents();
+    loadMyEvents();
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -156,6 +157,7 @@ class EventsCubit extends Cubit<EventsState> {
         }).toList();
 
         emit(state.copyWith(events: updatedEvents));
+        await loadMyEvents(); // Refresh my events
       }
 
       return success;
@@ -214,6 +216,7 @@ class EventsCubit extends Cubit<EventsState> {
       }).toList();
 
       emit(state.copyWith(events: updatedEvents));
+      await loadMyEvents(); // Refresh my events
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }

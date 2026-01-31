@@ -169,43 +169,62 @@ class ProfileScreen extends StatelessWidget {
                     icon: Iconsax.user_edit,
                     title: 'تعديل الملف الشخصي',
                     onTap: () {
-                      // Navigate to edit profile
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('قريباً: صفحة تعديل الملف الشخصي')),
+                      );
                     },
                   ),
                   _MenuItem(
                     icon: Iconsax.book_saved,
                     title: 'مهاراتي',
-                    onTap: () {},
+                    onTap: () {
+                      // Switch to skills tab (index 1)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('انتقل إلى تبويب المهارات من القائمة السفلية')),
+                      );
+                    },
                   ),
                   _MenuItem(
                     icon: Iconsax.heart,
                     title: 'المفضلة',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('قريباً: صفحة المفضلة')),
+                      );
+                    },
                   ),
                   _MenuItem(
                     icon: Iconsax.calendar,
                     title: 'حجوزاتي',
-                    onTap: () {},
+                    onTap: () => context.push('/bookings'),
                   ),
                   _MenuItem(
                     icon: Iconsax.wallet_2,
                     title: 'المحفظة',
-                    onTap: () {},
+                    onTap: () => context.push('/wallet'),
                   ),
                   _MenuItem(
                     icon: Iconsax.notification,
                     title: 'الإشعارات',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('قريباً: صفحة الإشعارات')),
+                      );
+                    },
                   ),
                   _MenuItem(
                     icon: Iconsax.setting_2,
                     title: 'الإعدادات',
-                    onTap: () {},
+                    onTap: () => context.push('/settings'),
                   ),
                   _MenuItem(
                     icon: Iconsax.info_circle,
                     title: 'عن التطبيق',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('قريباً: صفحة عن التطبيق')),
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
 

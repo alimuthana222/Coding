@@ -19,10 +19,16 @@ class WalletCubit extends Cubit<WalletState> {
   // ═══════════════════════════════════════════════════════════════════
 
   Future<void> loadWalletData() async {
-    final userId = SupabaseConfig.currentUserId;
-    if (userId == null) return;
-
     emit(state.copyWith(status: WalletStatus.loading));
+    
+    final userId = SupabaseConfig.currentUserId;
+    if (userId == null) {
+      emit(state.copyWith(
+        status: WalletStatus.error,
+        errorMessage: 'يجب تسجيل الدخول لعرض المحفظة',
+      ));
+      return;
+    }
 
     try {
       final results = await Future.wait([

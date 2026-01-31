@@ -150,6 +150,68 @@ class SkillsCubit extends Cubit<SkillsState> {
   }
 
   // ═══════════════════════════════════════════════════════════════════
+  // DELETE SKILL
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<bool> deleteSkill(String skillId) async {
+    try {
+      await _skillRepository.deleteSkill(skillId);
+
+      final updatedSkills = state.skills.where((s) => s.id != skillId).toList();
+      emit(state.copyWith(skills: updatedSkills));
+      
+      return true;
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CREATE SKILL
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<bool> createSkill({
+    required String titleAr,
+    required String categoryId,
+    String? titleEn,
+    String? descriptionAr,
+    String? descriptionEn,
+    double? priceHours,
+    int? durationMinutes,
+  }) async {
+    final userId = SupabaseConfig.currentUserId;
+    if (userId == null) return false;
+
+    try {
+      final skill = SkillModel(
+        id: '',
+        userId: userId,
+        categoryId: categoryId,
+        titleAr: titleAr,
+        titleEn: titleEn,
+        descriptionAr: descriptionAr,
+        descriptionEn: descriptionEn,
+        priceHours: priceHours ?? 1.0,
+        durationMinutes: durationMinutes ?? 60,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final createdSkill = await _skillRepository.createSkill(skill);
+
+      emit(state.copyWith(
+        skills: [createdSkill, ...state.skills],
+      ));
+
+      return true;
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
   // REFRESH
   // ═══════════════════════════════════════════════════════════════════
 

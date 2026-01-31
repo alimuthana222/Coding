@@ -446,7 +446,7 @@ class _PostCard extends StatelessWidget {
                   child: TextButton.icon(
                     onPressed: () {
                       requireAuth(context, () {
-                        // Show comments
+                        _showCommentsSheetForPost(context, post);
                       });
                     },
                     icon: Icon(
@@ -462,7 +462,11 @@ class _PostCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      requireAuth(context, () {
+                        _handleSharePostAction(context, post);
+                      });
+                    },
                     icon: Icon(
                       Iconsax.share,
                       size: 20,
@@ -671,4 +675,161 @@ class _PostActionButton extends StatelessWidget {
       child: Icon(icon, color: color, size: 22),
     );
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STANDALONE HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
+
+void _showCommentsSheetForPost(BuildContext context, PostModel post) {
+  final commentController = TextEditingController();
+  
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (sheetContext) => DraggableScrollableSheet(
+      initialChildSize: 0.9,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'التعليقات',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const Divider(),
+            
+            // Comments list
+            Expanded(
+              child: FutureBuilder<List<PostCommentModel>>(
+                future: context.read<PostsCubit>().getComments(post.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Iconsax.message,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'لا توجد تعليقات بعد',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  
+                  final comments = snapshot.data!;
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount: comments.length,
+                    itemBuilder: (context, index) {
+                      final comment = comments[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: comment.user?.avatarUrl != null
+                              ? NetworkImage(comment.user!.avatarUrl!)
+                              : null,
+                          child: comment.user?.avatarUrl == null
+                              ? Text(comment.user?.initials ?? '?')
+                              : null,
+                        ),
+                        title: Text(comment.user?.fullName ?? 'Unknown'),
+                        subtitle: Text(comment.content),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            
+            // Comment input
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: commentController,
+                      decoration: InputDecoration(
+                        hintText: 'اكتب تعليق...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Iconsax.send_1),
+                    color: AppColors.primary,
+                    onPressed: () async {
+                      if (commentController.text.trim().isEmpty) return;
+                      
+                      final success = await context.read<PostsCubit>().addComment(
+                        post.id,
+                        commentController.text.trim(),
+                      );
+                      
+                      if (success) {
+                        commentController.clear();
+                        // Refresh the sheet to show new comment
+                        Navigator.pop(context);
+                        _showCommentsSheetForPost(sheetContext, post);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+void _handleSharePostAction(BuildContext context, PostModel post) {
+  context.read<PostsCubit>().sharePost(post.id);
+  
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text('تم مشاركة المنشور'),
+      backgroundColor: AppColors.success,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+    ),
+  );
 }

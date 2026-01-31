@@ -138,6 +138,66 @@ class PostsCubit extends Cubit<PostsState> {
   }
 
   // ═══════════════════════════════════════════════════════════════════
+  // ADD COMMENT
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<bool> addComment(String postId, String content) async {
+    final userId = SupabaseConfig.currentUserId;
+    if (userId == null) return false;
+
+    try {
+      await _postRepository.addComment(postId, userId, content);
+
+      // Update comments count for the post
+      final updatedPosts = state.posts.map((post) {
+        if (post.id == postId) {
+          return post.copyWith(commentsCount: post.commentsCount + 1);
+        }
+        return post;
+      }).toList();
+
+      emit(state.copyWith(posts: updatedPosts));
+      return true;
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // GET COMMENTS
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<List<PostCommentModel>> getComments(String postId) async {
+    try {
+      return await _postRepository.getComments(postId);
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+      return [];
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SHARE POST
+  // ═══════════════════════════════════════════════════════════════════
+
+  Future<void> sharePost(String postId) async {
+    try {
+      // Update shares count for the post
+      final updatedPosts = state.posts.map((post) {
+        if (post.id == postId) {
+          return post.copyWith(sharesCount: post.sharesCount + 1);
+        }
+        return post;
+      }).toList();
+
+      emit(state.copyWith(posts: updatedPosts));
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
   // REFRESH
   // ═══════════════════════════════════════════════════════════════════
 

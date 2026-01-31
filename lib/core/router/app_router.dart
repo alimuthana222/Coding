@@ -8,6 +8,9 @@ import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/home/presentation/screens/main_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/wallet/presentation/screens/wallet_screen.dart';
+import '../../features/bookings/presentation/screens/bookings_screen.dart';
 
 class AppRouter {
   AppRouter._();
@@ -18,6 +21,9 @@ class AppRouter {
   static const String login = '/login';
   static const String register = '/register';
   static const String main = '/main';
+  static const String settings = '/settings';
+  static const String wallet = '/wallet';
+  static const String bookings = '/bookings';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -62,6 +68,27 @@ class AppRouter {
         path: main,
         name: 'main',
         builder: (context, state) => const MainScreen(),
+      ),
+
+      // Settings
+      GoRoute(
+        path: settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+
+      // Wallet
+      GoRoute(
+        path: wallet,
+        name: 'wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+
+      // Bookings
+      GoRoute(
+        path: bookings,
+        name: 'bookings',
+        builder: (context, state) => const BookingsScreen(),
       ),
     ],
   );

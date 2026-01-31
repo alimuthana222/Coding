@@ -1,13 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/locale_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreference();
+  }
+
+  Future<void> _loadNotificationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    });
+  }
+
+  Future<void> _saveNotificationPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', value);
+    setState(() {
+      _notificationsEnabled = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +63,8 @@ class SettingsScreen extends StatelessWidget {
             icon: Iconsax.notification,
             title: context.t('notifications'),
             trailing: Switch(
-              value: true,
-              onChanged: (value) {},
+              value: _notificationsEnabled,
+              onChanged: (value) => _saveNotificationPreference(value),
               activeColor: AppColors.primary,
             ),
           ),
@@ -48,31 +78,31 @@ class SettingsScreen extends StatelessWidget {
             context,
             icon: Iconsax.document,
             title: context.t('privacy_policy'),
-            onTap: () {},
+            onTap: () => _launchURL('https://example.com/privacy'),
           ),
           _buildSettingsTile(
             context,
             icon: Iconsax.document_text,
             title: context.t('terms_of_service'),
-            onTap: () {},
+            onTap: () => _launchURL('https://example.com/terms'),
           ),
           _buildSettingsTile(
             context,
             icon: Iconsax.star,
             title: context.t('rate_app'),
-            onTap: () {},
+            onTap: () => _showRateDialog(context),
           ),
           _buildSettingsTile(
             context,
             icon: Iconsax.share,
             title: context.t('share_app'),
-            onTap: () {},
+            onTap: () => _shareApp(context),
           ),
           _buildSettingsTile(
             context,
             icon: Iconsax.message_question,
             title: context.t('contact_us'),
-            onTap: () {},
+            onTap: () => _contactUs(context),
           ),
         ],
       ),
@@ -243,6 +273,81 @@ class SettingsScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('لا يمكن فتح الرابط')),
+        );
+      }
+    }
+  }
+
+  void _showRateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تقييم التطبيق'),
+        content: const Text('هل تريد تقييم التطبيق على متجر التطبيقات؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchURL('https://play.google.com/store');
+            },
+            child: const Text('تقييم'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _shareApp(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('قريباً: مشاركة التطبيق'),
+        backgroundColor: AppColors.info,
+      ),
+    );
+  }
+
+  void _contactUs(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تواصل معنا'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text('support@example.com'),
+              onTap: () => _launchURL('mailto:support@example.com'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.phone),
+              title: const Text('+964 XXX XXX XXXX'),
+              onTap: () => _launchURL('tel:+964XXXXXXXXX'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إغلاق'),
+          ),
+        ],
       ),
     );
   }

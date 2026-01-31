@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/event_model.dart';
+import '../../../../core/config/supabase_config.dart';
 import '../../../../shared/widgets/auth_guard.dart';
 import '../../bloc/events_cubit.dart';
 import '../../bloc/events_state.dart';
@@ -868,7 +869,43 @@ class _CreateEventSheetState extends State<_CreateEventSheet> {
       return;
     }
 
-    // TODO: Create event
-    Navigator.pop(context);
+    final userId = SupabaseConfig.currentUserId;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يجب تسجيل الدخول أولاً')),
+      );
+      return;
+    }
+
+    final event = EventModel(
+      id: '',
+      userId: userId,
+      titleAr: _titleController.text.trim(),
+      descriptionAr: _descriptionController.text.trim().isNotEmpty
+          ? _descriptionController.text.trim()
+          : null,
+      type: _selectedType,
+      status: EventStatus.published,
+      startDate: _selectedDate,
+      location: _locationController.text.trim().isNotEmpty
+          ? _locationController.text.trim()
+          : null,
+      isOnline: _isOnline,
+      isFree: _isFree,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    context.read<EventsCubit>().createEvent(event).then((success) {
+      if (success) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم إنشاء الفعالية بنجاح'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    });
   }
 }

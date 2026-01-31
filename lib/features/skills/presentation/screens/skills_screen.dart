@@ -5,6 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/config/supabase_config.dart';
 import '../../../../shared/widgets/auth_guard.dart';
 import '../../bloc/skills_cubit.dart';
 import '../../bloc/skills_state.dart';
@@ -420,14 +421,33 @@ class _AddSkillSheetState extends State<_AddSkillSheet> {
       return;
     }
 
-    // TODO: Save skill to backend
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تم إضافة المهارة بنجاح! ✅'),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    if (_selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يجب اختيار فئة المهارة')),
+      );
+      return;
+    }
+
+    final priceHours = double.tryParse(_priceController.text) ?? 1.0;
+
+    context.read<SkillsCubit>().createSkill(
+      titleAr: _titleController.text.trim(),
+      categoryId: _selectedCategoryId!,
+      descriptionAr: _descriptionController.text.trim().isNotEmpty
+          ? _descriptionController.text.trim()
+          : null,
+      priceHours: priceHours,
+    ).then((success) {
+      if (success) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم إضافة المهارة بنجاح! ✅'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    });
   }
 }
 
@@ -509,6 +529,8 @@ class _SkillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final currentUserId = SupabaseConfig.currentUserId;
+    final isOwner = currentUserId != null && skill.userId == currentUserId;
 
     return GestureDetector(
       onTap: () {
@@ -527,90 +549,142 @@ class _SkillCard extends StatelessWidget {
           ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            // Top - Icon/Image
-            Expanded(
-              flex: 5,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer.withOpacity(0.5),
-                ),
-                child: Center(
-                  child: Icon(
-                    Iconsax.book,
-                    size: 44,
-                    color: colorScheme.primary,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top - Icon/Image
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withOpacity(0.5),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Iconsax.book,
+                        size: 44,
+                        color: colorScheme.primary,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            // Bottom - Info
-            Expanded(
-              flex: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      skill.titleAr ?? 'مهارة',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
+                // Bottom - Info
+                Expanded(
+                  flex: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor: colorScheme.primaryContainer,
-                          child: Icon(Iconsax.user, size: 12, color: colorScheme.primary),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            skill.user?.fullName ?? 'مستخدم',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        const Icon(Icons.star_rounded, size: 14, color: AppColors.star),
-                        const SizedBox(width: 2),
                         Text(
-                          '${skill.rating ?? 0}',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${skill.priceHours ?? 1} ${context.t('hours')}',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colorScheme.primary,
+                          skill.titleAr ?? 'مهارة',
+                          style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor: colorScheme.primaryContainer,
+                              child: Icon(Iconsax.user, size: 12, color: colorScheme.primary),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                skill.user?.fullName ?? 'مستخدم',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 14, color: AppColors.star),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${skill.rating ?? 0}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${skill.priceHours ?? 1} ${context.t('hours')}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+            // Delete button for owned skills
+            if (isOwner)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  icon: const Icon(Iconsax.trash, size: 18),
+                  color: AppColors.error,
+                  style: IconButton.styleFrom(
+                    backgroundColor: colorScheme.surface.withOpacity(0.9),
+                    padding: const EdgeInsets.all(8),
+                  ),
+                  onPressed: () => _showDeleteDialog(context, skill),
                 ),
               ),
-            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, dynamic skill) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('حذف المهارة'),
+        content: const Text('هل أنت متأكد من حذف هذه المهارة؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<SkillsCubit>().deleteSkill(skill.id).then((success) {
+                Navigator.pop(dialogContext);
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تم حذف المهارة بنجاح'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
+              });
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('حذف'),
+          ),
+        ],
       ),
     );
   }

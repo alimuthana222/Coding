@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/post_model.dart';
 
@@ -9,6 +10,8 @@ class PostRepository {
   // ═══════════════════════════════════════════════════════════════════
 
   Future<List<PostModel>> getPosts({int page = 1, int limit = 20}) async {
+    final currentUserId = SupabaseConfig.currentUserId;
+    
     final response = await _client
         .from(SupabaseConfig.postsTable)
         .select('*, profiles(*)')
@@ -16,7 +19,40 @@ class PostRepository {
         .order('created_at', ascending: false)
         .range((page - 1) * limit, page * limit - 1);
 
-    return (response as List).map((e) => PostModel.fromJson(e)).toList();
+    final posts = (response as List).map((e) => PostModel.fromJson(e)).toList();
+    
+    // Enrich posts with counts and like status
+    for (var i = 0; i < posts.length; i++) {
+      final post = posts[i];
+      
+      // Get likes count
+      final likesResponse = await _client
+          .from(SupabaseConfig.postLikesTable)
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('post_id', post.id);
+      final likesCount = likesResponse.count ?? 0;
+      
+      // Get comments count
+      final commentsResponse = await _client
+          .from(SupabaseConfig.postCommentsTable)
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('post_id', post.id);
+      final commentsCount = commentsResponse.count ?? 0;
+      
+      // Check if liked by current user
+      bool isLikedByMe = false;
+      if (currentUserId != null) {
+        isLikedByMe = await isLikedByUser(post.id, currentUserId);
+      }
+      
+      posts[i] = post.copyWith(
+        likesCount: likesCount,
+        commentsCount: commentsCount,
+        isLikedByMe: isLikedByMe,
+      );
+    }
+    
+    return posts;
   }
 
   // ═══════════════════════════════════════════════════════════════════
