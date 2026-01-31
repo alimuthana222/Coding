@@ -1,0 +1,850 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- MAHARAT APP - DATABASE SCHEMA
+-- ═══════════════════════════════════════════════════════════════════
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 1. USERS TABLE (extends Supabase auth.users)
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT NOT NULL,
+    username TEXT UNIQUE,
+    phone TEXT,
+    avatar_url TEXT,
+    bio TEXT,
+    university TEXT,
+    skills TEXT[] DEFAULT '{}',
+    interests TEXT[] DEFAULT '{}',
+    wallet_hours DECIMAL(10,2) DEFAULT 5.00,
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_online BOOLEAN DEFAULT FALSE,
+    last_seen TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 2. SKILLS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.skill_categories (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name_ar TEXT NOT NULL,
+    name_en TEXT NOT NULL,
+    icon TEXT,
+    color TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE public.skills (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    category_id UUID REFERENCES public.skill_categories(id),
+    title_ar TEXT NOT NULL,
+    title_en TEXT,
+    description_ar TEXT,
+    description_en TEXT,
+    price_hours DECIMAL(5,2) NOT NULL DEFAULT 1.00,
+    duration_minutes INT DEFAULT 60,
+    is_online BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    rating DECIMAL(2,1) DEFAULT 0.0,
+    total_reviews INT DEFAULT 0,
+    total_sessions INT DEFAULT 0,
+    images TEXT[] DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 3. BOOKINGS TABLE
+-- ══════════════════════════════════════════��════════════════════════
+
+CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'completed', 'cancelled', 'rejected');
+
+CREATE TABLE public.bookings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    skill_id UUID REFERENCES public.skills(id) ON DELETE CASCADE NOT NULL,
+    learner_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    teacher_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    scheduled_at TIMESTAMPTZ NOT NULL,
+    duration_minutes INT NOT NULL DEFAULT 60,
+    hours_cost DECIMAL(5,2) NOT NULL,
+    status booking_status DEFAULT 'pending',
+    meeting_link TEXT,
+    notes TEXT,
+    learner_rating INT CHECK (learner_rating >= 1 AND learner_rating <= 5),
+    learner_review TEXT,
+    teacher_rating INT CHECK (teacher_rating >= 1 AND teacher_rating <= 5),
+    teacher_review TEXT,
+    completed_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    cancellation_reason TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 4. POSTS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.posts (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    content TEXT NOT NULL,
+    images TEXT[] DEFAULT '{}',
+    likes_count INT DEFAULT 0,
+    comments_count INT DEFAULT 0,
+    shares_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE public.post_likes (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(post_id, user_id)
+);
+
+CREATE TABLE public.post_comments (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    content TEXT NOT NULL,
+    likes_count INT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 5. EVENTS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TYPE event_type AS ENUM ('job', 'workshop', 'conference', 'webinar', 'training', 'meetup', 'other');
+CREATE TYPE event_status AS ENUM ('draft', 'published', 'cancelled', 'completed');
+
+CREATE TABLE public.events (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    title_ar TEXT NOT NULL,
+    title_en TEXT,
+    description_ar TEXT,
+    description_en TEXT,
+    type event_type NOT NULL,
+    status event_status DEFAULT 'published',
+    start_date TIMESTAMPTZ NOT NULL,
+    end_date TIMESTAMPTZ,
+    location TEXT,
+    is_online BOOLEAN DEFAULT FALSE,
+    meeting_link TEXT,
+    image_url TEXT,
+    is_free BOOLEAN DEFAULT TRUE,
+    price DECIMAL(10,2),
+    currency TEXT DEFAULT 'USD',
+    max_attendees INT,
+    current_attendees INT DEFAULT 0,
+    registration_deadline TIMESTAMPTZ,
+
+    -- Job specific fields
+    company_name TEXT,
+    job_type TEXT, -- full_time, part_time, remote, hybrid
+    salary_range TEXT,
+    requirements TEXT[],
+    benefits TEXT[],
+
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE public.event_registrations (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    status TEXT DEFAULT 'registered', -- registered, attended, cancelled
+    registered_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(event_id, user_id)
+);
+
+-- ═════════════════════════════════════════════════════════════════��═
+-- 6. MESSAGES TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.conversations (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    participant_1 UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    participant_2 UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    last_message_id UUID,
+    last_message_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(participant_1, participant_2)
+);
+
+CREATE TABLE public.messages (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE NOT NULL,
+    sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    content TEXT NOT NULL,
+    message_type TEXT DEFAULT 'text', -- text, image, file, booking
+    attachment_url TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 7. NOTIFICATIONS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TYPE notification_type AS ENUM (
+    'booking_request', 'booking_confirmed', 'booking_cancelled', 'booking_completed',
+    'new_message', 'new_follower', 'post_like', 'post_comment',
+    'event_reminder', 'wallet_update', 'system'
+);
+
+CREATE TABLE public.notifications (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    type notification_type NOT NULL,
+    title_ar TEXT NOT NULL,
+    title_en TEXT,
+    body_ar TEXT,
+    body_en TEXT,
+    data JSONB DEFAULT '{}',
+    is_read BOOLEAN DEFAULT FALSE,
+    read_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 8. WALLET TRANSACTIONS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TYPE transaction_type AS ENUM ('earned', 'spent', 'bonus', 'refund', 'transfer_in', 'transfer_out');
+
+CREATE TABLE public.wallet_transactions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    type transaction_type NOT NULL,
+    hours DECIMAL(5,2) NOT NULL,
+    balance_after DECIMAL(10,2) NOT NULL,
+    description_ar TEXT,
+    description_en TEXT,
+    related_booking_id UUID REFERENCES public.bookings(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═════════════════════════════════════════════��═════════════════════
+-- 9. REVIEWS TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.reviews (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    skill_id UUID REFERENCES public.skills(id) ON DELETE CASCADE NOT NULL,
+    booking_id UUID REFERENCES public.bookings(id) ON DELETE CASCADE NOT NULL,
+    reviewer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    reviewed_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 10. FAVORITES TABLE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE public.favorites (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    skill_id UUID REFERENCES public.skills(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, skill_id)
+);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- INDEXES FOR PERFORMANCE
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE INDEX idx_skills_user_id ON public.skills(user_id);
+CREATE INDEX idx_skills_category_id ON public.skills(category_id);
+CREATE INDEX idx_skills_is_active ON public.skills(is_active);
+CREATE INDEX idx_bookings_learner_id ON public.bookings(learner_id);
+CREATE INDEX idx_bookings_teacher_id ON public.bookings(teacher_id);
+CREATE INDEX idx_bookings_status ON public.bookings(status);
+CREATE INDEX idx_posts_user_id ON public.posts(user_id);
+CREATE INDEX idx_posts_created_at ON public.posts(created_at DESC);
+CREATE INDEX idx_events_type ON public.events(type);
+CREATE INDEX idx_events_start_date ON public.events(start_date);
+CREATE INDEX idx_messages_conversation_id ON public.messages(conversation_id);
+CREATE INDEX idx_messages_created_at ON public.messages(created_at DESC);
+CREATE INDEX idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON public.notifications(is_read);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- ROW LEVEL SECURITY (RLS)
+-- ═══════════════════════════════════════════════════════════════════
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.skills ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_registrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wallet_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+
+-- Profiles policies
+CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can update own profile" ON public.profiles
+    FOR UPDATE USING (auth.uid() = id);
+
+-- Skills policies
+CREATE POLICY "Skills are viewable by everyone" ON public.skills
+    FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Users can create own skills" ON public.skills
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own skills" ON public.skills
+    FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own skills" ON public.skills
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Posts policies
+CREATE POLICY "Posts are viewable by everyone" ON public.posts
+    FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Users can create posts" ON public.posts
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own posts" ON public.posts
+    FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own posts" ON public.posts
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Events policies
+CREATE POLICY "Published events are viewable by everyone" ON public.events
+    FOR SELECT USING (status = 'published');
+
+CREATE POLICY "Users can create events" ON public.events
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own events" ON public.events
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Messages policies
+CREATE POLICY "Users can view own conversations" ON public.conversations
+    FOR SELECT USING (auth.uid() = participant_1 OR auth.uid() = participant_2);
+
+CREATE POLICY "Users can view own messages" ON public.messages
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM public.conversations c
+            WHERE c.id = conversation_id
+            AND (c.participant_1 = auth.uid() OR c.participant_2 = auth.uid())
+        )
+    );
+
+CREATE POLICY "Users can send messages" ON public.messages
+    FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+-- Notifications policies
+CREATE POLICY "Users can view own notifications" ON public.notifications
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own notifications" ON public.notifications
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Bookings policies
+CREATE POLICY "Users can view own bookings" ON public.bookings
+    FOR SELECT USING (auth.uid() = learner_id OR auth.uid() = teacher_id);
+
+CREATE POLICY "Users can create bookings" ON public.bookings
+    FOR INSERT WITH CHECK (auth.uid() = learner_id);
+
+CREATE POLICY "Users can update own bookings" ON public.bookings
+    FOR UPDATE USING (auth.uid() = learner_id OR auth.uid() = teacher_id);
+
+-- ═══════════════════════════════════════════════════════════════════
+-- FUNCTIONS & TRIGGERS
+-- ═══════════════════════════════════════════════════════════════════
+
+-- Auto-create profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, full_name)
+    VALUES (
+        NEW.id,
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1))
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE TRIGGER update_skills_updated_at BEFORE UPDATE ON public.skills
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE TRIGGER update_posts_updated_at BEFORE UPDATE ON public.posts
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON public.events
+    FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+-- Update post likes count
+CREATE OR REPLACE FUNCTION public.update_post_likes_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE public.posts SET likes_count = likes_count + 1 WHERE id = NEW.post_id;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE public.posts SET likes_count = likes_count - 1 WHERE id = OLD.post_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_post_like_change
+    AFTER INSERT OR DELETE ON public.post_likes
+    FOR EACH ROW EXECUTE FUNCTION public.update_post_likes_count();
+
+-- Update post comments count
+CREATE OR REPLACE FUNCTION public.update_post_comments_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE public.posts SET comments_count = comments_count + 1 WHERE id = NEW.post_id;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE public.posts SET comments_count = comments_count - 1 WHERE id = OLD.post_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_post_comment_change
+    AFTER INSERT OR DELETE ON public.post_comments
+    FOR EACH ROW EXECUTE FUNCTION public.update_post_comments_count();
+
+-- ═══════════════════════════════════════════════════════════════════
+-- SEED DATA - SKILL CATEGORIES
+-- ═══════════════════════════════════════════════════════════════════
+
+
+INSERT INTO public.skill_categories (name_ar, name_en, icon, color) VALUES
+    ('البرمجة والتقنية', 'Programming & Tech', 'code', '#6366F1'),
+    ('التصميم', 'Graphics & Design', 'brush', '#EC4899'),
+    ('التسويق الرقمي', 'Digital Marketing', 'chart', '#F59E0B'),
+    ('الكتابة والترجمة', 'Writing & Translation', 'edit', '#14B8A6'),
+    ('الفيديو والأنيميشن', 'Video & Animation', 'video', '#EF4444'),
+    ('الموسيقى والصوتيات', 'Music & Audio', 'music', '#8B5CF6'),
+    ('الأعمال', 'Business', 'business', '#3B82F6'),
+    ('البيانات', 'Data', 'data', '#06B6D4'),
+    ('التصوير', 'Photography', 'camera', '#22C55E'),
+    ('الذكاء الاصطناعي', 'AI Services', 'cpu', '#F97316'),
+    ('التعليم والتدريب', 'Education & Training', 'school', '#0EA5E9');
+
+
+
+
+
+
+
+
+
+
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- UPDATED PROFILES TABLE
+    -- ═══════════════════════════════════════════════════════════════════
+
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(12,2) DEFAULT 0.00;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS time_bank_hours DECIMAL(10,2) DEFAULT 2.00; -- ساعتين مجانية لكل حساب جديد
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_earnings DECIMAL(12,2) DEFAULT 0.00;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_services_provided INT DEFAULT 0;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_services_received INT DEFAULT 0;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS provider_rating DECIMAL(2,1) DEFAULT 0.0;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_reviews INT DEFAULT 0;
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- WALLET TRANSACTIONS
+    -- ═══════════════════════════════════════════════════════════════════
+
+    DROP TYPE IF EXISTS wallet_transaction_type CASCADE;
+    CREATE TYPE wallet_transaction_type AS ENUM (
+      'deposit',           -- إيداع
+      'withdrawal',        -- سحب
+      'service_payment',   -- دفع مقابل خدمة
+      'service_earning',   -- ربح من خدمة
+      'buy_hours',         -- شراء ساعات
+      'refund'             -- استرداد
+    );
+
+    DROP TYPE IF EXISTS transaction_status CASCADE;
+    CREATE TYPE transaction_status AS ENUM (
+      'pending',
+      'completed',
+      'rejected',
+      'cancelled'
+    );
+
+    DROP TYPE IF EXISTS payment_method CASCADE;
+    CREATE TYPE payment_method AS ENUM (
+      'zain_cash',
+      'qi_card'
+    );
+
+    DROP TABLE IF EXISTS public.wallet_transactions CASCADE;
+    CREATE TABLE public.wallet_transactions (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+      type wallet_transaction_type NOT NULL,
+      amount DECIMAL(12,2) NOT NULL,
+      balance_before DECIMAL(12,2) NOT NULL,
+      balance_after DECIMAL(12,2) NOT NULL,
+      status transaction_status DEFAULT 'pending',
+
+      -- For deposit
+      payment_method payment_method,
+      payment_phone TEXT,
+      payment_reference TEXT,
+      deposit_proof_url TEXT,
+
+      -- For withdrawal
+      withdrawal_phone TEXT,
+      withdrawal_account TEXT,
+
+      -- For service transactions
+      related_service_id UUID,
+      related_booking_id UUID,
+      related_user_id UUID REFERENCES public.profiles(id),
+
+      -- For buying hours
+      hours_purchased DECIMAL(5,2),
+
+      -- Admin
+      admin_note TEXT,
+      processed_by UUID,
+      processed_at TIMESTAMPTZ,
+
+      description_ar TEXT,
+
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- TIME BANK TRANSACTIONS
+    -- ═══════════════════════════════════════════════════════════════════
+
+    DROP TYPE IF EXISTS time_transaction_type CASCADE;
+    CREATE TYPE time_transaction_type AS ENUM (
+      'initial',           -- رصيد أولي (2 ساعة)
+      'purchased',         -- شراء من المحفظة
+      'earned',            -- ربح من تقديم خدمة
+      'spent',             -- صرف للحصول على خدمة
+      'refund'             -- استرداد
+    );
+
+    DROP TABLE IF EXISTS public.time_bank_transactions CASCADE;
+    CREATE TABLE public.time_bank_transactions (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+      type time_transaction_type NOT NULL,
+      hours DECIMAL(5,2) NOT NULL,
+      balance_before DECIMAL(10,2) NOT NULL,
+      balance_after DECIMAL(10,2) NOT NULL,
+
+      -- For purchased
+      amount_paid DECIMAL(12,2),
+
+      -- For service transactions
+      related_service_id UUID,
+      related_booking_id UUID,
+      related_user_id UUID REFERENCES public.profiles(id),
+
+      description_ar TEXT,
+
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- SERVICES/SKILLS TABLE (Marketplace)
+    -- ═══════════════════════════════════════════════════════════════════
+
+    DROP TYPE IF EXISTS service_type CASCADE;
+    CREATE TYPE service_type AS ENUM (
+      'offering',    -- أعرض خدمة (أقدر أساعدك)
+      'requesting'   -- أطلب خدمة (أحتاج مساعدة)
+    );
+
+    DROP TYPE IF EXISTS pricing_type CASCADE;
+    CREATE TYPE pricing_type AS ENUM (
+      'hours',       -- بالساعات (بنك الساعات)
+      'money'        -- بالمال (من المحفظة)
+    );
+
+    DROP TYPE IF EXISTS service_status CASCADE;
+    CREATE TYPE service_status AS ENUM (
+      'active',
+      'paused',
+      'completed',
+      'deleted'
+    );
+
+    DROP TABLE IF EXISTS public.services CASCADE;
+    CREATE TABLE public.services (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+      category_id UUID REFERENCES public.skill_categories(id),
+
+      -- Basic Info
+      service_type service_type NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+
+      -- Pricing
+      pricing_type pricing_type NOT NULL,
+      price_hours DECIMAL(5,2),        -- السعر بالساعات
+      price_money DECIMAL(12,2),       -- السعر بالدينار
+      estimated_duration INT,          -- المدة المتوقعة بالدقائق
+
+      -- Media
+      images TEXT[] DEFAULT '{}',
+
+      -- Status
+      status service_status DEFAULT 'active',
+
+      -- Stats
+      views INT DEFAULT 0,
+      total_bookings INT DEFAULT 0,
+      completed_bookings INT DEFAULT 0,
+      rating DECIMAL(2,1) DEFAULT 0.0,
+      total_reviews INT DEFAULT 0,
+
+      -- Search
+      search_text TEXT,
+
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- SERVICE BOOKINGS
+    -- ═══════════════════════════════════════════════════════════════════
+
+    DROP TYPE IF EXISTS booking_status CASCADE;
+    CREATE TYPE booking_status AS ENUM (
+      'pending',           -- في انتظار القبول
+      'accepted',          -- تم القبول
+      'in_progress',       -- قيد التنفيذ
+      'completed',         -- مكتمل
+      'cancelled',         -- ملغي
+      'rejected',          -- مرفوض
+      'disputed'           -- نزاع
+    );
+
+    DROP TABLE IF EXISTS public.service_bookings CASCADE;
+    CREATE TABLE public.service_bookings (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      service_id UUID REFERENCES public.services(id) ON DELETE CASCADE NOT NULL,
+
+      -- Users
+      client_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+      provider_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+      -- Pricing (snapshot at booking time)
+      pricing_type pricing_type NOT NULL,
+      price_hours DECIMAL(5,2),
+      price_money DECIMAL(12,2),
+
+      -- Status
+      status booking_status DEFAULT 'pending',
+
+      -- Messages/Notes
+      client_message TEXT,
+      provider_response TEXT,
+
+      -- Dates
+      accepted_at TIMESTAMPTZ,
+      started_at TIMESTAMPTZ,
+      completed_at TIMESTAMPTZ,
+      cancelled_at TIMESTAMPTZ,
+      cancelled_by UUID,
+      cancellation_reason TEXT,
+
+      -- Review
+      client_rating INT CHECK (client_rating >= 1 AND client_rating <= 5),
+      client_review TEXT,
+      client_reviewed_at TIMESTAMPTZ,
+
+      provider_rating INT CHECK (provider_rating >= 1 AND provider_rating <= 5),
+      provider_review TEXT,
+      provider_reviewed_at TIMESTAMPTZ,
+
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- INDEXES
+    -- ═══════════════════════════════════════════════════════════════════
+
+    CREATE INDEX idx_services_user ON public.services(user_id);
+    CREATE INDEX idx_services_category ON public.services(category_id);
+    CREATE INDEX idx_services_type ON public.services(service_type);
+    CREATE INDEX idx_services_pricing ON public.services(pricing_type);
+    CREATE INDEX idx_services_status ON public.services(status);
+    CREATE INDEX idx_services_search ON public.services USING GIN(to_tsvector('arabic', search_text));
+
+    CREATE INDEX idx_bookings_service ON public.service_bookings(service_id);
+    CREATE INDEX idx_bookings_client ON public.service_bookings(client_id);
+    CREATE INDEX idx_bookings_provider ON public.service_bookings(provider_id);
+    CREATE INDEX idx_bookings_status ON public.service_bookings(status);
+
+    CREATE INDEX idx_wallet_trans_user ON public.wallet_transactions(user_id);
+    CREATE INDEX idx_wallet_trans_status ON public.wallet_transactions(status);
+
+    CREATE INDEX idx_time_trans_user ON public.time_bank_transactions(user_id);
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- RLS POLICIES
+    -- ═══════════════════════════════════════════════════════════════════
+
+    ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.service_bookings ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.wallet_transactions ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.time_bank_transactions ENABLE ROW LEVEL SECURITY;
+
+    -- Services
+    CREATE POLICY "Active services viewable by all" ON public.services
+      FOR SELECT USING (status = 'active');
+    CREATE POLICY "Users can manage own services" ON public.services
+      FOR ALL USING (auth.uid() = user_id);
+
+    -- Bookings
+    CREATE POLICY "Users can view own bookings" ON public.service_bookings
+      FOR SELECT USING (auth.uid() = client_id OR auth.uid() = provider_id);
+    CREATE POLICY "Users can create bookings" ON public.service_bookings
+      FOR INSERT WITH CHECK (auth.uid() = client_id);
+    CREATE POLICY "Participants can update bookings" ON public.service_bookings
+      FOR UPDATE USING (auth.uid() = client_id OR auth.uid() = provider_id);
+
+    -- Wallet transactions
+    CREATE POLICY "Users can view own wallet transactions" ON public.wallet_transactions
+      FOR SELECT USING (auth.uid() = user_id);
+    CREATE POLICY "Users can create wallet transactions" ON public.wallet_transactions
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+    -- Time bank transactions
+    CREATE POLICY "Users can view own time transactions" ON public.time_bank_transactions
+      FOR SELECT USING (auth.uid() = user_id);
+
+    -- ═══════════════════════════════════════════════════════════════════
+    -- FUNCTIONS & TRIGGERS
+    -- ═══════════════════════════════════════════════════════════════════
+
+    -- Auto update search_text
+    CREATE OR REPLACE FUNCTION update_service_search_text()
+    RETURNS TRIGGER AS $$
+    BEGIN
+      NEW.search_text := NEW.title || ' ' || NEW.description;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER service_search_text_trigger
+      BEFORE INSERT OR UPDATE ON public.services
+      FOR EACH ROW EXECUTE FUNCTION update_service_search_text();
+
+    -- Give 2 hours to new users
+    CREATE OR REPLACE FUNCTION give_initial_hours()
+    RETURNS TRIGGER AS $$
+    BEGIN
+      -- Insert initial time bank transaction
+      INSERT INTO public.time_bank_transactions (
+        user_id, type, hours, balance_before, balance_after, description_ar
+      ) VALUES (
+        NEW.id, 'initial', 2, 0, 2, 'رصيد أولي - ساعتين مجانية'
+      );
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+    CREATE TRIGGER on_new_user_give_hours
+      AFTER INSERT ON public.profiles
+      FOR EACH ROW EXECUTE FUNCTION give_initial_hours();
+
+    -- Update service rating after review
+    CREATE OR REPLACE FUNCTION update_service_rating()
+    RETURNS TRIGGER AS $$
+    BEGIN
+      UPDATE public.services SET
+        rating = (
+          SELECT ROUND(AVG(client_rating)::numeric, 1)
+          FROM public.service_bookings
+          WHERE service_id = NEW.service_id AND client_rating IS NOT NULL
+        ),
+        total_reviews = (
+          SELECT COUNT(*)
+          FROM public.service_bookings
+          WHERE service_id = NEW.service_id AND client_rating IS NOT NULL
+        )
+      WHERE id = NEW.service_id;
+
+      -- Update provider rating
+      UPDATE public.profiles SET
+        provider_rating = (
+          SELECT ROUND(AVG(client_rating)::numeric, 1)
+          FROM public.service_bookings b
+          JOIN public.services s ON b.service_id = s.id
+          WHERE s.user_id = NEW.provider_id AND b.client_rating IS NOT NULL
+        ),
+        total_reviews = (
+          SELECT COUNT(*)
+          FROM public.service_bookings b
+          JOIN public.services s ON b.service_id = s.id
+          WHERE s.user_id = NEW.provider_id AND b.client_rating IS NOT NULL
+        )
+      WHERE id = NEW.provider_id;
+
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+    CREATE TRIGGER on_booking_review
+      AFTER UPDATE OF client_rating ON public.service_bookings
+      FOR EACH ROW EXECUTE FUNCTION update_service_rating();
