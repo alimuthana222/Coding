@@ -22,13 +22,15 @@
         
         .page {
             width: 210mm;
-            min-height: 297mm;
-            padding: 30mm 25mm 25mm 25mm;
+            height: 297mm;
+            padding: 20mm 20mm 25mm 20mm;
             margin: 20px auto;
             background: white;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             page-break-after: always;
+            page-break-inside: avoid;
             position: relative;
+            overflow: hidden;
         }
         
         .cover-page {
@@ -39,36 +41,36 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 40mm 30mm;
+            padding: 30mm 25mm;
         }
         
         .cover-page h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 52px;
+            font-size: 42px;
             font-weight: 900;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             line-height: 1.2;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
             color: white;
             letter-spacing: -1px;
         }
         
-        .cover-page . author-info {
-            margin-top: 80px;
-            font-size: 18px;
+        .cover-page .author-info {
+            margin-top: 60px;
+            font-size: 16px;
         }
         
         .cover-page .author-names {
-            margin-top: 25px;
-            font-size: 22px;
-            line-height: 2. 2;
+            margin-top: 20px;
+            font-size: 20px;
+            line-height: 2;
             font-weight: 500;
             color: white;
         }
         
         .cover-page .date {
-            margin-top: 40px;
-            font-size: 16px;
+            margin-top: 30px;
+            font-size: 15px;
             opacity: 0.95;
             font-weight: 300;
         }
@@ -85,10 +87,10 @@
         h1 {
             font-family: 'Playfair Display', serif;
             color: #667eea;
-            font-size: 34px;
-            margin-bottom: 25px;
-            border-bottom: 4px solid #667eea;
-            padding-bottom: 12px;
+            font-size: 28px;
+            margin-bottom: 18px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
             font-weight: 700;
             letter-spacing: -0.5px;
         }
@@ -96,36 +98,36 @@
         h2 {
             font-family: 'Poppins', sans-serif;
             color: #764ba2;
-            font-size: 22px;
-            margin-top: 35px;
-            margin-bottom: 18px;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 12px;
             font-weight: 600;
             letter-spacing: -0.3px;
         }
         
         h3 {
             color: #667eea;
-            font-size: 17px;
-            margin-top: 25px;
-            margin-bottom: 12px;
+            font-size: 14px;
+            margin-top: 16px;
+            margin-bottom: 8px;
             font-weight: 600;
         }
         
         p {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: justify;
-            font-size: 13. 5px;
-            line-height: 1.9;
+            font-size: 11px;
+            line-height: 1.7;
             color: #34495e;
             font-weight: 400;
         }
         
         .abstract-box {
             background: linear-gradient(135deg, #e8eeff 0%, #f5f0ff 100%);
-            padding: 28px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 6px solid #667eea;
+            padding: 18px;
+            border-radius: 10px;
+            margin: 18px 0;
+            border-left: 5px solid #667eea;
             box-shadow: 0 3px 15px rgba(102, 126, 234, 0.1);
         }
         
@@ -135,29 +137,30 @@
         }
         
         .abstract-box p {
-            font-size: 13px;
-            line-height: 1.85;
+            font-size: 10px;
+            line-height: 1.7;
         }
         
         .image-container {
-            margin: 30px 0;
+            margin: 18px 0;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .image-container img {
             max-width: 100%;
+            max-height: 150px;
             height: auto;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         }
         
         .image-caption {
-            margin-top: 15px;
-            font-size: 12px;
+            margin-top: 10px;
+            font-size: 10px;
             color: #7f8c8d;
             font-style: italic;
             font-weight: 500;
@@ -165,10 +168,10 @@
         
         .info-box {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 22px 25px;
-            border-radius: 12px;
-            margin: 25px 0;
-            border-left: 5px solid #764ba2;
+            padding: 15px 18px;
+            border-radius: 10px;
+            margin: 18px 0;
+            border-left: 4px solid #764ba2;
             box-shadow: 0 2px 10px rgba(118, 75, 162, 0.08);
         }
         
@@ -178,18 +181,18 @@
         }
         
         .info-box p {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         
         ul, ol {
-            margin-left: 35px;
-            margin-bottom: 18px;
+            margin-left: 25px;
+            margin-bottom: 12px;
         }
         
         li {
-            margin-bottom: 10px;
-            font-size: 13. 5px;
-            line-height: 1.8;
+            margin-bottom: 6px;
+            font-size: 11px;
+            line-height: 1.6;
             color: #34495e;
         }
         
@@ -204,31 +207,31 @@
         .two-column {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin: 25px 0;
+            gap: 18px;
+            margin: 18px 0;
         }
         
-        . two-column > div {
+        .two-column > div {
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 8px;
             border-top: 3px solid #667eea;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
+            margin: 18px 0;
             box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
         
         th, td {
-            padding: 14px 16px;
+            padding: 10px 12px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
-            font-size: 13px;
+            font-size: 10px;
         }
         
         th {
@@ -236,7 +239,7 @@
             color: white;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 9px;
             letter-spacing: 0.5px;
         }
         
@@ -255,27 +258,27 @@
         
         .footer {
             position: absolute;
-            bottom: 15mm;
-            left: 25mm;
-            right: 25mm;
+            bottom: 12mm;
+            left: 20mm;
+            right: 20mm;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #95a5a6;
-            padding-top: 12px;
+            padding-top: 10px;
             border-top: 2px solid #e9ecef;
             font-weight: 500;
         }
         
         .page-number {
             position: absolute;
-            bottom: 15mm;
-            right: 25mm;
-            font-size: 13px;
+            bottom: 12mm;
+            right: 20mm;
+            font-size: 11px;
             color: #667eea;
             font-weight: 700;
             background: #e8eeff;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
         
         .highlight {
@@ -288,22 +291,22 @@
         }
         
         blockquote {
-            border-left: 5px solid #667eea;
-            padding-left: 20px;
-            margin: 25px 0;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+            margin: 18px 0;
             font-style: italic;
             color: #555;
             background: #f8f9fa;
-            padding: 15px 20px;
-            border-radius: 0 8px 8px 0;
+            padding: 12px 15px;
+            border-radius: 0 6px 6px 0;
         }
         
         .reference-item {
-            margin-bottom: 14px;
-            padding-left: 25px;
-            text-indent: -25px;
-            font-size: 11. 5px;
-            line-height: 1.7;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            text-indent: -20px;
+            font-size: 9px;
+            line-height: 1.5;
             color: #34495e;
         }
         
@@ -317,15 +320,42 @@
         }
         
         @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            
             body {
                 background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
-            . page {
+            
+            .page {
                 margin: 0;
                 box-shadow: none;
+                width: 210mm;
+                height: 297mm;
+                page-break-after: always;
+                page-break-inside: avoid;
             }
+            
             .page-number {
-                background: none;
+                background: #e8eeff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .cover-page {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
@@ -359,7 +389,7 @@
     </div>
     
     <h2>Table of Contents</h2>
-    <ol style="line-height: 2. 4; font-size: 14px; font-weight: 500;">
+    <ol style="line-height: 2; font-size: 12px; font-weight: 500;">
         <li>Introduction</li>
         <li>Background and Fundamentals</li>
         <li>Traditional 3D Reconstruction Methods</li>
@@ -389,7 +419,7 @@
     <p>The ability to perceive and reconstruct three-dimensional structure from two-dimensional images is a cornerstone capability in computer vision.   Humans perform this task effortlessly, leveraging years of visual experience and sophisticated neural processing.   However, teaching machines to accomplish similar feats has proven to be one of the most challenging problems in artificial intelligence. </p>
     
     <div class="image-container">
-        <img src="https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fs41598-024-64805-y/MediaObjects/41598_2024_64805_Fig1_HTML.png" alt="3D Reconstruction Example" style="max-height: 200px;">
+        <img src="https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fs41598-024-64805-y/MediaObjects/41598_2024_64805_Fig1_HTML.png" alt="3D Reconstruction Example" style="max-height: 140px;">
         <div class="image-caption">Figure 1. 1: Overview of 3D reconstruction from 2D images</div>
     </div>
     
@@ -437,7 +467,7 @@
     <p>Meshes represent surfaces using vertices, edges, and faces (typically triangles or polygons). They provide explicit connectivity and are widely used in computer graphics for rendering.   However, they can be topologically complex and challenging to predict directly with neural networks.</p>
     
     <div class="image-container">
-        <img src="https://pytorch.org/assets/images/resnet.png" alt="Mesh Representation" style="max-height: 220px;">
+        <img src="https://pytorch.org/assets/images/resnet.png" alt="Mesh Representation" style="max-height: 140px;">
         <div class="image-caption">Figure 2. 1: Neural network architecture for 3D representations</div>
     </div>
     
@@ -478,7 +508,7 @@
     </ol>
     
     <div class="image-container">
-        <img src="https://capsulesbot.com/imgs/apolloscape_sfm/bundle_adj_2x.png" alt="Structure from Motion" style="max-height: 200px;">
+        <img src="https://capsulesbot.com/imgs/apolloscape_sfm/bundle_adj_2x.png" alt="Structure from Motion" style="max-height: 130px;">
         <div class="image-caption">Figure 3. 1: Structure from Motion pipeline illustration</div>
     </div>
     
@@ -534,7 +564,7 @@
     <p>CNNs are the backbone of most image-based 3D reconstruction systems. Their hierarchical feature learning capability makes them ideal for extracting visual patterns at multiple scales.</p>
     
     <div class="image-container">
-        <img src="https://www.researchgate.net/publication/339396982/figure/fig1/AS:941463663804431@1601473837515/The-architecture-of-a-standard-CNN-model-with-feature-extraction-and-fully-connected.png" alt="CNN Architecture" style="max-height: 180px;">
+        <img src="https://www.researchgate.net/publication/339396982/figure/fig1/AS:941463663804431@1601473837515/The-architecture-of-a-standard-CNN-model-with-feature-extraction-and-fully-connected.png" alt="CNN Architecture" style="max-height: 120px;">
         <div class="image-caption">Figure 4. 1: Typical CNN architecture for feature extraction</div>
     </div>
     
@@ -592,7 +622,7 @@
     <p>Monocular depth estimation predicts a depth value for each pixel in a single image. Modern approaches use deep neural networks trained on datasets with ground truth depth from LiDAR sensors or synthetic data.</p>
     
     <div class="image-container">
-        <img src="https://www.mdpi.com/sensors/sensors-21-00054/article_deploy/html/images/sensors-21-00054-g001.png" alt="Depth Estimation" style="max-height: 220px;">
+        <img src="https://www.mdpi.com/sensors/sensors-21-00054/article_deploy/html/images/sensors-21-00054-g001.png" alt="Depth Estimation" style="max-height: 140px;">
         <div class="image-caption">Figure 5. 1: Example of monocular depth estimation from a single RGB image</div>
     </div>
     
@@ -640,7 +670,7 @@
     <p>These methods construct a cost volume by measuring feature similarity across different depth hypotheses, then use 3D CNNs to regularize and extract depth. </p>
     
     <div class="image-container">
-        <img src="https://www.mdpi.com/sensors/sensors-22-07659/article_deploy/html/images/sensors-22-07659-g001-550.jpg" alt="MVSNet" style="max-height: 200px;">
+        <img src="https://www.mdpi.com/sensors/sensors-22-07659/article_deploy/html/images/sensors-22-07659-g001-550.jpg" alt="MVSNet" style="max-height: 130px;">
         <div class="image-caption">Figure 6. 1: Cost volume construction in learning-based MVS</div>
     </div>
     
@@ -702,7 +732,7 @@
     <p>NeRF represents a scene as a continuous 5D function that maps 3D coordinates and viewing direction to volume density and emitted radiance. This breakthrough method achieves photorealistic novel view synthesis.</p>
     
     <div class="image-container">
-        <img src="https://raw.githubusercontent.com/bmild/nerf/master/imgs/pipeline.jpg" alt="NeRF Pipeline" style="max-height: 200px;">
+        <img src="https://raw.githubusercontent.com/bmild/nerf/master/imgs/pipeline.jpg" alt="NeRF Pipeline" style="max-height: 130px;">
         <div class="image-caption">Figure 7. 1: Neural Radiance Fields (NeRF) architecture and rendering pipeline</div>
     </div>
     
@@ -788,7 +818,7 @@
     <h2>8.2 Outdoor Scene Datasets</h2>
     
     <div class="image-container">
-        <img src="https://www.researchgate.net/publication/340810694/figure/fig4/AS:882734771736576@1587471778190/Some-examples-from-the-KITTI-dataset-a-case-1-the-vehicle-behind-cyan-occludes-the.ppm" alt="KITTI Dataset" style="max-height: 180px;">
+        <img src="https://www.researchgate.net/publication/340810694/figure/fig4/AS:882734771736576@1587471778190/Some-examples-from-the-KITTI-dataset-a-case-1-the-vehicle-behind-cyan-occludes-the.ppm" alt="KITTI Dataset" style="max-height: 120px;">
         <div class="image-caption">Figure 8. 1: Example from KITTI autonomous driving dataset</div>
     </div>
     
@@ -908,7 +938,7 @@
     </ul>
     
     <div class="image-container">
-        <img src="https://www.labellerr.com/blog/content/images/2022/11/main-1.webp" alt="Autonomous Vehicle" style="max-height: 200px;">
+        <img src="https://www.labellerr.com/blog/content/images/2022/11/main-1.webp" alt="Autonomous Vehicle" style="max-height: 130px;">
         <div class="image-caption">Figure 10.1: 3D reconstruction for autonomous driving</div>
     </div>
     
